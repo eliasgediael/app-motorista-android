@@ -75,19 +75,19 @@ class OfferBalloonLayoutTest {
             found
         }
         assertTrue("$label: nenhum texto encontrado", nodes.isNotEmpty())
+        val problems = mutableListOf<String>()
         nodes.forEach { node ->
             val results = mutableListOf<TextLayoutResult>()
             node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
             results.forEach { r ->
                 val text = r.layoutInput.text.text
-                assertFalse("$label: transbordo em \"$text\"", r.hasVisualOverflow)
-                if (!text.contains(' ')) {
-                    assertEquals("$label: \"$text\" quebrou em mais de uma linha", 1, r.lineCount)
-                }
+                if (r.hasVisualOverflow) problems += "transbordo em \"$text\" size=${r.size} lines=${r.lineCount} w=${r.multiParagraph.width}"
+                if (!text.contains(' ') && r.lineCount != 1) problems += "\"$text\" quebrou em ${r.lineCount} linhas"
             }
             val b = node.boundsInRoot
-            assertTrue("$label: texto fora da largura (${b.left}..${b.right} de $rootWidthPx)", b.left >= -0.5f && b.right <= rootWidthPx + 0.5f)
+            if (!(b.left >= -0.5f && b.right <= rootWidthPx + 0.5f)) problems += "fora da largura (${b.left}..${b.right} de $rootWidthPx)"
         }
+        assertTrue("$label: " + problems.distinct().joinToString(" | "), problems.isEmpty())
     }
 
     @Test
