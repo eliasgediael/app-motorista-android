@@ -103,7 +103,7 @@ class OfferBalloonOverflowTest {
 
     @Test
     fun noClippingAcrossFieldsFontsAndWidths() {
-        val density = 2f
+        val density = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.density
         setContent(density)
         val all = CardField.entries.toSet()
         val bad = mutableListOf<String>()
@@ -122,7 +122,7 @@ class OfferBalloonOverflowTest {
 
     @Test
     fun eachSingleFieldAloneDoesNotClip() {
-        val density = 2f
+        val density = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.density
         setContent(density)
         val bad = mutableListOf<String>()
         for (field in CardField.entries)
