@@ -1,6 +1,7 @@
 package br.app.motorista.ui.nav
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import br.app.motorista.domain.card.PreviewState
+import br.app.motorista.floating.FloatingConfig
 import br.app.motorista.ui.balloon.BalloonPreviewScreen
 import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
@@ -46,6 +48,10 @@ fun AppNavHost(
     preferences: PreferencesViewModel = viewModel(),
 ) {
     val state by preferences.state.collectAsState()
+    // Entrega ao serviço do botão flutuante o mesmo estilo do cartão e a opacidade do botão.
+    LaunchedEffect(state.cardStyle, state.buttonOpacity) {
+        FloatingConfig.update(state.cardStyle, state.buttonOpacity)
+    }
     val back: () -> Unit = { navController.popBackStack() }
     val open: (String) -> Unit = navController::openScreen
     NavHost(navController = navController, startDestination = ROUTE_HOME) {
@@ -89,7 +95,12 @@ fun AppNavHost(
                     onBack = back,
                     onOpen = open,
                 )
-                "atalhos" -> FloatingControlScreen(onBack = back, onOpen = open)
+                "atalhos" -> FloatingControlScreen(
+                    buttonOpacity = state.buttonOpacity,
+                    onButtonOpacity = preferences::setButtonOpacity,
+                    onBack = back,
+                    onOpen = open,
+                )
                 "balao-boa" -> BalloonPreviewScreen(PreviewState.Good, state, back, open)
                 "balao-atencao" -> BalloonPreviewScreen(PreviewState.Attention, state, back, open)
                 "balao-ruim" -> BalloonPreviewScreen(PreviewState.Bad, state, back, open)

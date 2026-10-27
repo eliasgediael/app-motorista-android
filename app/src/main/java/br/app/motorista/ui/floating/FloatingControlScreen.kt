@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import br.app.motorista.floating.FloatingConfig
 import br.app.motorista.floating.FloatingControlService
 import br.app.motorista.ui.common.InfoNote
 import br.app.motorista.ui.common.ScreenScaffold
@@ -33,7 +35,12 @@ import br.app.motorista.ui.common.SurfaceCard
 
 /** Controle flutuante (telas/08-atalhos): ativa o botão do próprio app. Sem integração com 99Pop. */
 @Composable
-fun FloatingControlScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
+fun FloatingControlScreen(
+    buttonOpacity: Float,
+    onButtonOpacity: (Float) -> Unit,
+    onBack: () -> Unit,
+    onOpen: (String) -> Unit,
+) {
     val context = LocalContext.current
     val running by FloatingControlService.running.collectAsState()
 
@@ -93,15 +100,38 @@ fun FloatingControlScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             }
         }
 
+        SectionTitle("Aparência do botão")
+        SurfaceCard {
+            Column(Modifier.padding(16.dp)) {
+                Text("Opacidade do botão ${(buttonOpacity * 100).toInt()}%", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Slider(
+                    value = buttonOpacity,
+                    onValueChange = onButtonOpacity,
+                    valueRange = FloatingConfig.BUTTON_OPACITY_MIN..1f,
+                )
+                Text(
+                    "O botão é sempre verde com símbolo branco; a cor não muda com a avaliação. " +
+                        "Esta opacidade é só do botão. A opacidade do balão fica em Estilo do cartão.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
         SectionTitle("Controles do botão")
         Text(
             "Toque no botão para abrir o menu. Arraste para mover.\n" +
+                "• Última oferta analisada (some se a oferta expirar ou for trocada)\n" +
                 "• Balão verde, amarelo ou vermelho de exemplo (some em 8 s)\n" +
                 "• Ocultar balão\n" +
                 "• Abrir aplicativo\n" +
                 "• Desligar botão",
             style = MaterialTheme.typography.bodyLarge,
         )
-        InfoNote("A permissão de sobreposição só é pedida por você, nas configurações do sistema. Nada é contornado.")
+        InfoNote(
+            "O botão e o menu ficam dentro da área útil da tela (fora das barras do sistema). Isso não protege botões " +
+                "de outros aplicativos: nenhuma proteção dos botões do 99Pop foi validada. A permissão de sobreposição " +
+                "só é pedida por você, nas configurações do sistema.",
+        )
     }
 }

@@ -1,5 +1,5 @@
 <resources>
     <!-- Nome provisório: marca própria ainda pendente. -->
     <string name="app_name">App Motorista</string>
-    <string name="floating_button_label">Painel</string>
+    <string name="floating_button_description">Botão flutuante. Toque para abrir os controles.</string>
 </resources>

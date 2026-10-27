@@ -44,6 +44,8 @@ data class PreferencesState(
     val reviewedMetric: CriterionMetric? = null,
     val policy: EvaluationPolicy = EvaluationPolicy(),
     val simulator: SimulatorForm = SimulatorForm(),
+    /** Opacidade do BOTÃO flutuante; independente da opacidade do balão (cardStyle.opacity). */
+    val buttonOpacity: Float = 1f,
 ) {
     /** Critérios ativos e válidos. Rascunho incompleto nunca vira regra. */
     fun activeRules(): List<CriterionRule> = CriterionMetric.entries.mapNotNull { metric ->
@@ -83,4 +85,6 @@ class PreferencesViewModel : ViewModel() {
     fun updatePolicy(change: (EvaluationPolicy) -> EvaluationPolicy) = _state.update { it.copy(policy = change(it.policy)) }
 
     fun updateSimulator(change: (SimulatorForm) -> SimulatorForm) = _state.update { it.copy(simulator = change(it.simulator)) }
+
+    fun setButtonOpacity(value: Float) = _state.update { it.copy(buttonOpacity = value) }
 }
