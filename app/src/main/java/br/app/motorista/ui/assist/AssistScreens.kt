@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import br.app.motorista.BuildConfig
+import br.app.motorista.copilot.CopilotController
 import br.app.motorista.data.AppData
 import br.app.motorista.domain.assist.AlertRules
 import br.app.motorista.domain.assist.FlaggedTerm
@@ -104,42 +105,61 @@ fun MessageScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     }
 }
 
-/** Alertas da viagem (telas/27-alertas): só com regra e fonte confirmadas. Hoje: embarque distante, com limite seu. */
+/** Alertas da viagem (telas/27-alertas) e limites de tempo/distância (tela 03): só com limite SEU e dado na oferta. */
 @Composable
 fun AlertsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     val settings by AppData.settings.items.collectAsState()
-    var limit by rememberSaveable { mutableStateOf(settings.firstOrNull { it.id == "alertPickupKm" }?.value ?: "") }
-    val parsed = OfferParsing.decimal(limit)
+    var marketHint by rememberSaveable { mutableStateOf(false) }
 
     ScreenScaffold("Alertas da viagem", onBack, onOpen) {
-        InfoNote("Um alerta só existe se você definir o limite e a oferta trouxer o dado. Sem limite, não há alerta. Hoje as ofertas vêm do simulador manual.")
-        SurfaceCard {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Embarque distante", fontWeight = FontWeight.SemiBold)
-                TextInput("Limite de distância até o embarque (km)", limit, { limit = it }, keyboard = KeyboardType.Decimal, error = if (parsed is Parsed.Invalid) "Número inválido" else null)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(enabled = parsed is Parsed.Ok, onClick = { AppData.putSetting("alertPickupKm", limit.trim()) }) { Text("Salvar limite") }
-                    OutlinedButton(onClick = {
-                        AppData.removeSetting("alertPickupKm")
-                        limit = ""
-                    }) { Text("Desligar alerta") }
-                }
-                Text(
-                    if (AppData.setting("alertPickupKm") != null) "Alerta ligado: acima de " + AppData.setting("alertPickupKm") + " km." else "Alerta desligado.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-        }
+        InfoNote("Um alerta só existe se você definir o limite e a oferta trouxer o dado. Sem limite, não há alerta. Alertas são avisos no balão e na voz, não mudam a cor nem recusam nada.")
+        LimitCard("Tempo e distância até o embarque", listOf(
+            Triple("alertPickupKm", "Distância até o embarque (km)", settings),
+            Triple("alertPickupMin", "Tempo até o embarque (min)", settings),
+        ))
+        LimitCard("Tempo e distância da viagem", listOf(
+            Triple("alertTripKm", "Distância da viagem (km)", settings),
+            Triple("alertTripMin", "Tempo da viagem (min)", settings),
+        ))
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Paradas e dado de passageiro iniciante", fontWeight = FontWeight.SemiBold)
+                Text("Corrida com parada e passageiro iniciante", fontWeight = FontWeight.SemiBold)
                 Text("Não implementado: exige fonte confirmada do dado e regra aprovada.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        OutlinedButton(onClick = { onOpen("locais") }, modifier = Modifier.fillMaxWidth()) { Text("Locais sinalizados e mercados") }
+    }
+}
+
+@Composable
+private fun LimitCard(title: String, fields: List<Triple<String, String, List<br.app.motorista.domain.finance.Setting>>>) {
+    SurfaceCard {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(title, fontWeight = FontWeight.SemiBold)
+            fields.forEach { (key, label, settings) ->
+                var text by rememberSaveable(key) { mutableStateOf(settings.firstOrNull { it.id == key }?.value ?: "") }
+                val parsed = OfferParsing.decimal(text)
+                TextInput(label, text, { text = it }, keyboard = KeyboardType.Decimal, error = if (parsed is Parsed.Invalid) "Número inválido" else null)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Button(enabled = parsed is Parsed.Ok, onClick = { AppData.putSetting(key, text.trim()) }) { Text("Salvar") }
+                    OutlinedButton(onClick = {
+                        AppData.removeSetting(key)
+                        text = ""
+                    }) { Text("Desligar") }
+                    Text(
+                        AppData.setting(key)?.let { "Ligado: acima de $it" } ?: "Desligado",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
     }
 }
 
-fun currentAlertRules(): AlertRules = AlertRules(AppData.setting("alertPickupKm")?.let { OfferParsing.decimal(it).valueOrNull() })
+fun currentAlertRules(): AlertRules {
+    fun d(k: String) = AppData.setting(k)?.let { OfferParsing.decimal(it).valueOrNull() }
+    return AlertRules(d("alertPickupKm"), d("alertPickupMin"), d("alertTripKm"), d("alertTripMin"))
+}
 
 /** Locais sinalizados (telas/28-locais): termos seus para avisar. Não prova segurança de lugar nenhum. */
 @Composable
@@ -172,6 +192,13 @@ fun PlacesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                     Text("Avisar sobre mercados", Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
                     Switch(checked = marketOn, onCheckedChange = { AppData.putSetting("marketAlert", it.toString()) })
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Avisar sobre locais sinalizados", Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                    Switch(
+                        checked = settings.firstOrNull { it.id == "placesAlert" }?.value != "false",
+                        onCheckedChange = { AppData.putSetting("placesAlert", it.toString()) },
+                    )
+                }
                 Text(
                     "Avisa quando o embarque ou o destino digitado contém uma destas palavras. Edite a lista como quiser (separe por vírgula).",
                     style = MaterialTheme.typography.bodySmall,
@@ -201,7 +228,7 @@ fun PlacesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
 fun VoiceSettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     val settings by AppData.settings.items.collectAsState()
     val chosen = VoiceText.parse(settings.firstOrNull { it.id == "voiceItems" }?.value).ifEmpty {
-        if (settings.any { it.id == "voiceItems" }) emptyList() else VoiceItem.entries
+        if (settings.any { it.id == "voiceItems" }) emptyList() else DEFAULT_VOICE_ITEMS
     }
     fun save(list: List<VoiceItem>) = AppData.putSetting("voiceItems", VoiceText.serialize(list))
     val ordered = chosen + VoiceItem.entries.filter { it !in chosen }
@@ -224,6 +251,26 @@ fun VoiceSettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                 }
             }
         }
+        val preview = VoiceText.build(chosen, "99Pop", "manual", "2,00", "67,64", "1,13", "avaliação amarela", "24,80", "Embarque distante: acima do seu limite.")
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Prévia do aviso (dados de exemplo)", fontWeight = FontWeight.SemiBold)
+                Text(preview.ifBlank { "(nada será falado)" }, style = MaterialTheme.typography.bodyMedium)
+                var hint by remember { mutableStateOf<String?>(null) }
+                OutlinedButton(
+                    enabled = preview.isNotBlank(),
+                    onClick = {
+                        hint = if (CopilotController.state.value.voice.status == br.app.motorista.domain.copilot.FeatureStatus.Active) {
+                            CopilotController.announce(preview)
+                            null
+                        } else {
+                            "Ligue os avisos por voz no Painel ou no menu do botão flutuante."
+                        }
+                    },
+                ) { Text("Falar prévia") }
+                hint?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+            }
+        }
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Como funciona", fontWeight = FontWeight.SemiBold)
@@ -237,12 +284,15 @@ fun VoiceSettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     }
 }
 
+/** Itens falados enquanto o usuário não escolher: os curtos. Reais por hora, valor e motivo ficam a critério dele. */
+private val DEFAULT_VOICE_ITEMS = listOf(VoiceItem.Origin, VoiceItem.PerKm, VoiceItem.PerHour, VoiceItem.Assessment)
+
 fun currentVoiceItems(): List<VoiceItem> {
-    val raw = AppData.setting("voiceItems") ?: return VoiceItem.entries
+    val raw = AppData.setting("voiceItems") ?: return DEFAULT_VOICE_ITEMS
     return VoiceText.parse(raw)
 }
 
-private enum class NavApp(val label: String) { Maps("Google Maps"), Waze("Waze") }
+private enum class NavApp(val label: String) { Ask("Perguntar sempre"), Maps("Google Maps"), Waze("Waze") }
 
 /** Navegação (telas/30-navegacao): abre o endereço que você digitou no aplicativo que escolher. Só por ação sua. */
 @Composable
@@ -266,11 +316,12 @@ fun NavigationScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                 val intent = when (app) {
                     NavApp.Maps -> Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$q")).setPackage("com.google.android.apps.maps")
                     NavApp.Waze -> Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?q=$q&navigate=yes")).setPackage("com.waze")
+                    NavApp.Ask -> Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$q")), "Abrir endereço com")
                     null -> null
                 }
                 message = if (intent == null) {
                     "Escolha um aplicativo."
-                } else if (intent.resolveActivity(context.packageManager) == null) {
+                } else if (app != NavApp.Ask && intent.resolveActivity(context.packageManager) == null) {
                     "${app?.label} não está instalado neste aparelho."
                 } else {
                     context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -295,6 +346,21 @@ fun HelpScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             "5. Registre ganhos e despesas em Finanças; confirme as viagens realizadas no Histórico.",
         ).forEach { Text(it, Modifier.padding(vertical = 2.dp)) }
 
+        SectionTitle("Perguntas frequentes")
+        listOf(
+            "Como funciona o balão?" to "Ele mostra os números da oferta (R$/km, R$/h, R$/min), calculados com a base que você escolheu, e um selo colorido: verde, amarelo ou vermelho pelas SUAS faixas. Sem critérios, combinação definida e dados completos, não há cor. O balão fica separado do botão e some quando a oferta expira ou muda.",
+            "Como funciona o botão flutuante?" to "Botão verde fixo com o símbolo. Toque para abrir os controles (análise, gravação, voz, jornada); arraste para mover. A cor dele nunca muda com a avaliação. Precisa da permissão de sobreposição que você concede nas configurações.",
+            "Quando aparece Recusar?" to "O selo RECUSAR aparece quando as suas regras põem a oferta abaixo do mínimo, com a sua combinação já escolhida. É só um aviso: o app NUNCA recusa corrida nem toca em outro app. Sem regras, aparece sem cor geral.",
+            "Permissões e compatibilidade" to "Sobreposição (botão), câmera (gravação visível, sem áudio), notificações (aviso dos serviços) e acessibilidade (leitor de ofertas, só se você ligar). Android mínimo 8.0. Veja o estado real em Permissões.",
+        ).forEach { (q, a) ->
+            var open by androidx.compose.runtime.saveable.rememberSaveable(q) { androidx.compose.runtime.mutableStateOf(false) }
+            SurfaceCard(onClick = { open = !open }) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(q, fontWeight = FontWeight.SemiBold)
+                    if (open) Text(a, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
         SectionTitle("O que é real e o que não é")
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

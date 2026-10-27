@@ -111,14 +111,19 @@ fun SimulatorScreen(
     val terms by AppData.flaggedTerms.items.collectAsState()
     AppData.settings.items.collectAsState().value
     // Motivos de atenção: alerta com limite do usuário e termos sinalizados. São avisos, não avaliação nem bloqueio.
-    val extras = AlertCalc.evaluate(parsed.input, currentAlertRules()) + PlaceMatcher.matches(form.pickupText, form.dropoffText, terms) +
+    val extras = AlertCalc.evaluate(parsed.input, currentAlertRules()) + (if (AppData.setting("placesAlert") == "false") emptyList() else PlaceMatcher.matches(form.pickupText, form.dropoffText, terms)) +
         br.app.motorista.ui.assist.marketMatchesNow(form.pickupText, form.dropoffText)
 
     ScreenScaffold(title, onBack, onOpen) {
         InfoNote("Digite uma oferta para ver os cálculos. Entrada manual: nada é lido de 99, Uber ou inDrive. Campo vazio é dado ausente, não zero.")
 
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { onOpen("criterios") }, modifier = Modifier.weight(1f)) { Text("Revisar critérios") }
+            OutlinedButton(onClick = { onOpen("corrida-teste") }, modifier = Modifier.weight(1f)) { Text("Corrida de teste") }
+        }
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Conferir dados da oferta", fontWeight = FontWeight.SemiBold)
                 Num("Valor ao motorista (R$)", form.fare, "fare" in bad) { v -> onChange { it.copy(fare = v) } }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Half("Embarque km", form.pickupKm, "pickupKm" in bad, false) { v -> onChange { it.copy(pickupKm = v) } }

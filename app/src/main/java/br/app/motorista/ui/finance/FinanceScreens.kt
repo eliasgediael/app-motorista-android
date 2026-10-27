@@ -134,6 +134,8 @@ fun EntryFormScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     var date by rememberSaveable { mutableStateOf(DateText.format(LocalDate.now())) }
     var categoryId by rememberSaveable { mutableStateOf<String?>(null) }
     var platformId by rememberSaveable { mutableStateOf<String?>(null) }
+    val vehicles by AppData.vehicles.items.collectAsState()
+    var vehicleId by rememberSaveable { mutableStateOf<String?>(AppData.activeVehicle()?.id) }
     var note by rememberSaveable { mutableStateOf("") }
     var confirmed by rememberSaveable { mutableStateOf(false) }
     var tried by rememberSaveable { mutableStateOf(false) }
@@ -163,6 +165,11 @@ fun EntryFormScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             Text("Plataforma", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             DropdownInput(platforms, platforms.firstOrNull { it.id == platformId }, "Escolher plataforma", { it.name }, { platformId = it?.id })
         }
+        if (vehicles.any { !it.archived }) {
+            Text("Veículo", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val list = vehicles.filter { !it.archived }
+            DropdownInput(list, list.firstOrNull { it.id == vehicleId }, "Escolher veículo", { it.name }, { vehicleId = it?.id })
+        }
         TextInput("Observação (opcional)", note, { note = it })
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = confirmed, onCheckedChange = { confirmed = it })
@@ -185,6 +192,7 @@ fun EntryFormScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                             epochDay = day.toEpochDay(),
                             categoryId = categoryId,
                             platformId = if (kind == EntryKind.Income) platformId else null,
+                            vehicleId = vehicleId,
                             note = note.trim(),
                         ),
                     )

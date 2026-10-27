@@ -358,7 +358,7 @@ object CopilotController {
         }
         // O que falar e em que ordem vem das escolhas do usuário (Voz e notificações).
         val text = br.app.motorista.domain.assist.VoiceText.build(
-            br.app.motorista.ui.assist.currentVoiceItems(), published.platform.label, published.origin.label, v.perKm, v.perHour, v.perMinute, colour,
+            br.app.motorista.ui.assist.currentVoiceItems(), published.platform.label, published.origin.label, v.perKm, v.perHour, v.perMinute, colour, v.fare, published.note,
         )
         if (text.isNotBlank()) announce(text)
     }

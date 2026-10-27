@@ -64,6 +64,10 @@ fun PreferencesScreen(themeMode: ThemeMode, onTheme: (ThemeMode) -> Unit, dark: 
                 )
             }
         }
+        SectionTitle("Atalhos")
+        OutlinedButton(onClick = { onOpen("plataformas") }, modifier = Modifier.fillMaxWidth()) { Text("Plataformas de corrida") }
+        OutlinedButton(onClick = { onOpen("conta") }, modifier = Modifier.fillMaxWidth()) { Text("Conta e dispositivos") }
+        OutlinedButton(onClick = { onOpen("permissoes") }, modifier = Modifier.fillMaxWidth()) { Text("Permissões") }
         SectionTitle("Outras preferências")
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -217,6 +221,9 @@ fun PrivacyScreen(onWipePrefs: () -> Unit, onBack: () -> Unit, onOpen: (String) 
                 Text("Leitura de outros aplicativos: não existe.")
             }
         }
+        SectionTitle("Imagens e gravações")
+        OutlinedButton(onClick = { onOpen("gravacoes") }, modifier = Modifier.fillMaxWidth()) { Text("Biblioteca de gravações") }
+        OutlinedButton(onClick = { onOpen("permissoes") }, modifier = Modifier.fillMaxWidth()) { Text("Permissões concedidas") }
         SectionTitle("Apagar")
         OutlinedButton(onClick = { confirmRecordings = true }, enabled = files.isNotEmpty(), modifier = Modifier.fillMaxWidth()) { Text("Apagar gravações") }
         Button(onClick = { confirmWipe = true }, modifier = Modifier.fillMaxWidth()) { Text("Apagar todos os dados do aplicativo") }

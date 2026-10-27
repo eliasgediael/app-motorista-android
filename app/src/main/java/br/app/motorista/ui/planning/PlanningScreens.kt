@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -186,6 +187,47 @@ fun ReserveScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
         }
         InfoNote("Provisão e transferência não são despesa. O gasto é contado uma única vez, pela despesa de manutenção gerada nele; assim nada é deduzido duas vezes.")
 
+        SectionTitle("Regra de provisão")
+        val settings by AppData.settings.items.collectAsState()
+        var ruleKind by rememberSaveable { mutableStateOf(settings.firstOrNull { it.id == "reserveRuleKind" }?.value ?: "") }
+        var ruleValue by rememberSaveable { mutableStateOf(settings.firstOrNull { it.id == "reserveRuleValue" }?.value ?: "") }
+        var reserveName by rememberSaveable { mutableStateOf(settings.firstOrNull { it.id == "reserveName" }?.value ?: "") }
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextInput("Nome da reserva", reserveName, { reserveName = it })
+                ChoiceChips(listOf("Percent", "Fixed"), ruleKind.ifBlank { null }, { if (it == "Percent") "% da receita do mês" else "Valor fixo por mês" }) { ruleKind = it }
+                TextInput(if (ruleKind == "Percent") "Percentual (%)" else "Valor (R$)", ruleValue, { ruleValue = it }, keyboard = KeyboardType.Decimal)
+                val rv = OfferParsing.decimal(ruleValue)
+                Button(
+                    enabled = ruleKind.isNotBlank() && rv is Parsed.Ok && rv.value.signum() > 0,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        AppData.putSetting("reserveRuleKind", ruleKind)
+                        AppData.putSetting("reserveRuleValue", ruleValue.trim())
+                        AppData.putSetting("reserveName", reserveName.trim())
+                    },
+                ) { Text("Salvar regra") }
+                val savedKind = settings.firstOrNull { it.id == "reserveRuleKind" }?.value
+                val savedValue = settings.firstOrNull { it.id == "reserveRuleValue" }?.value?.let { OfferParsing.decimal(it).valueOrNull() }
+                if (savedKind == null || savedValue == null) {
+                    Text("Sem regra salva: nenhuma provisão é sugerida. Nenhum valor é presumido.", style = MaterialTheme.typography.bodySmall)
+                } else {
+                    val ym = YearMonth.now()
+                    val monthTxs = FinanceCalc.month(AppData.transactions.items.value, ym)
+                    val income = FinanceCalc.summary(monthTxs).incomeCents
+                    val provisioned = entries.filter { it.kind == ReserveKind.Provision && YearMonth.from(LocalDate.ofEpochDay(it.epochDay)) == ym }.sumOf { it.amountCents }
+                    val fixed = if (savedKind == "Fixed") savedValue.multiply(java.math.BigDecimal(100)).toLong() else null
+                    val suggested = ReserveCalc.suggestedProvision(if (savedKind == "Percent") savedValue else null, fixed, income, provisioned)
+                    Text("Sugestão do mês: " + FinanceCalc.formatCents(suggested) + " (já provisionado: " + FinanceCalc.formatCents(provisioned) + ")", fontWeight = FontWeight.SemiBold)
+                    OutlinedButton(
+                        enabled = suggested > 0,
+                        onClick = { AppData.reserve.upsert(ReserveEntry(AppData.newId(), ReserveKind.Provision, suggested, LocalDate.now().toEpochDay(), "Regra de provisão")) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Registrar provisão sugerida") }
+                }
+            }
+        }
+
         SectionTitle("Novo registro")
         SurfaceCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -302,7 +344,7 @@ fun DayCloseScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     val odoBad = odo is Parsed.Invalid || (odo is Parsed.Ok && !MaintenanceCalc.acceptOdometer(vehicle?.odometerKm, odo.value))
 
     ScreenScaffold("Fechar o dia", onBack, onOpen) {
-        DateInput("Dia", date, { date = it }, if (day == null) "Data inválida" else null)
+        DateInput("Data do trabalho", date, { date = it }, if (day == null) "Data inválida" else null)
         if (summary != null) {
             SurfaceCard {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -310,6 +352,18 @@ fun DayCloseScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                     Line("Despesas", FinanceCalc.formatCents(summary.expenseCents))
                     Line("Resultado de caixa", FinanceCalc.formatCents(summary.cashCents), bold = true)
                 }
+            }
+        }
+        val journeys by AppData.journeys.items.collectAsState()
+        val dayJourneys = day?.let { d ->
+            journeys.filter { java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault()).toLocalDate() == d }
+        } ?: emptyList()
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Pausas e tempo online", fontWeight = FontWeight.SemiBold)
+                Line("Em andamento", br.app.motorista.domain.journey.JourneyClock.format(dayJourneys.sumOf { it.workedMs }))
+                Line("Em pausa", br.app.motorista.domain.journey.JourneyClock.format(dayJourneys.sumOf { it.pausedMs }))
+                if (dayJourneys.isEmpty()) Text("Sem jornada encerrada neste dia.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (existing != null) {
@@ -321,7 +375,8 @@ fun DayCloseScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                 if (vehicle != null) "Veículo ativo: " + vehicle.name + " (odômetro " + (vehicle.odometerKm?.let { "$it km" } ?: "desconhecido") + ")" else "Sem veículo ativo: o odômetro não será atualizado.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            TextInput("Odômetro ao fim do dia (km, opcional)", odometer, { odometer = it }, keyboard = KeyboardType.Number,
+            Text("Odômetro inicial: " + (vehicle?.odometerKm?.let { "$it km" } ?: "desconhecido") + (odo.valueOrNull()?.let { f -> vehicle?.odometerKm?.let { i -> " · km do dia: " + (f - i) } } ?: ""), style = MaterialTheme.typography.bodySmall)
+            TextInput("Odômetro final (km, opcional)", odometer, { odometer = it }, keyboard = KeyboardType.Number,
                 error = if (odoBad) "Inválido ou menor que o odômetro registrado" else null)
             TextInput("Observação (opcional)", note, { note = it })
             Button(

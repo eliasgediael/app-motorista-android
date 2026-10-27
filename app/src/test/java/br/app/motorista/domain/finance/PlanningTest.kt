@@ -66,6 +66,15 @@ class PlanningTest {
     }
 
     @Test
+    fun suggestedProvisionFollowsUserRuleAndNeverGoesNegative() {
+        val pct = java.math.BigDecimal("10")
+        assertEquals(5_000, ReserveCalc.suggestedProvision(pct, null, 100_000, 5_000))
+        assertEquals(0, ReserveCalc.suggestedProvision(pct, null, 100_000, 20_000))
+        assertEquals(8_000, ReserveCalc.suggestedProvision(null, 10_000, 0, 2_000))
+        assertEquals(0, ReserveCalc.suggestedProvision(null, null, 100_000, 0))
+    }
+
+    @Test
     fun goalProgressUsesConfirmedIncomeAndRemainingWorkDays() {
         val d = LocalDate.of(2026, 10, 5).toEpochDay()
         val txs = listOf(

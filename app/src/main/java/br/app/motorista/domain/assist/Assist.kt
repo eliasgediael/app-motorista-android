@@ -39,16 +39,26 @@ object MessageTemplate {
 // ---------- Alertas da viagem ----------
 
 /** Limites definidos pelo usuário. null = alerta desligado (nunca um valor padrão). */
-data class AlertRules(val maxPickupKm: java.math.BigDecimal?)
+data class AlertRules(
+    val maxPickupKm: java.math.BigDecimal? = null,
+    val maxPickupMin: java.math.BigDecimal? = null,
+    val maxTripKm: java.math.BigDecimal? = null,
+    val maxTripMin: java.math.BigDecimal? = null,
+)
 
 object AlertCalc {
+    private fun over(value: Long?, unitsPerLimit: Long, limit: java.math.BigDecimal?): Boolean {
+        if (value == null || limit == null) return false
+        return java.math.BigDecimal(value) > limit.multiply(java.math.BigDecimal(unitsPerLimit))
+    }
+
+    private fun fmt(v: java.math.BigDecimal) = v.stripTrailingZeros().toPlainString()
+
     fun evaluate(input: OfferInput, rules: AlertRules): List<String> = buildList {
-        val limit = rules.maxPickupKm
-        val pickup = input.pickupMeters
-        if (limit != null && pickup != null) {
-            val limitMeters = limit.multiply(java.math.BigDecimal(1000))
-            if (java.math.BigDecimal(pickup) > limitMeters) add("Embarque distante: acima do seu limite de " + limit.stripTrailingZeros().toPlainString() + " km")
-        }
+        if (over(input.pickupMeters, 1000, rules.maxPickupKm)) add("Embarque distante: acima do seu limite de " + fmt(rules.maxPickupKm!!) + " km")
+        if (over(input.pickupSeconds, 60, rules.maxPickupMin)) add("Embarque demorado: acima do seu limite de " + fmt(rules.maxPickupMin!!) + " min")
+        if (over(input.tripMeters, 1000, rules.maxTripKm)) add("Viagem longa: acima do seu limite de " + fmt(rules.maxTripKm!!) + " km")
+        if (over(input.tripSeconds, 60, rules.maxTripMin)) add("Viagem demorada: acima do seu limite de " + fmt(rules.maxTripMin!!) + " min")
     }
 }
 
@@ -104,19 +114,26 @@ enum class VoiceItem(val label: String) {
     PerKm("Reais por quilômetro"),
     PerHour("Reais por hora"),
     PerMinute("Reais por minuto"),
+    Fare("Valor da viagem"),
     Assessment("Avaliação (cor)"),
+    Reason("Motivo do alerta"),
 }
 
 object VoiceText {
     /** Itens escolhidos, na ordem escolhida, separados por ponto. Vazio se nada foi escolhido (nada é falado). */
-    fun build(items: List<VoiceItem>, platform: String, origin: String, perKm: String, perHour: String, perMinute: String, assessment: String): String =
+    fun build(
+        items: List<VoiceItem>, platform: String, origin: String, perKm: String, perHour: String, perMinute: String, assessment: String,
+        fare: String = "", reason: String = "",
+    ): String =
         items.joinToString(" ") {
             when (it) {
                 VoiceItem.Origin -> "$platform, entrada $origin."
                 VoiceItem.PerKm -> "Reais por quilômetro $perKm."
                 VoiceItem.PerHour -> "Reais por hora $perHour."
                 VoiceItem.PerMinute -> "Reais por minuto $perMinute."
+                VoiceItem.Fare -> "Valor da viagem $fare reais."
                 VoiceItem.Assessment -> "$assessment."
+                VoiceItem.Reason -> reason
             }
         }
 

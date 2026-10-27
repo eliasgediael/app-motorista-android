@@ -24,11 +24,15 @@ private fun nul(v: Any?): Any = v ?: JSONObject.NULL
 
 object VehicleCodec : Codec<Vehicle> {
     override fun toJson(item: Vehicle) = JSONObject().put("id", item.id).put("name", item.name).put("ownership", item.ownership.name)
-        .put("odometerKm", nul(item.odometerKm)).put("archived", item.archived)
+        .put("odometerKm", nul(item.odometerKm)).put("archived", item.archived).put("type", item.type.name)
 
     override fun fromJson(o: JSONObject) = Vehicle(
-        o.getString("id"), o.getString("name"), Ownership.valueOf(o.getString("ownership")),
-        o.longOrNull("odometerKm"), o.optBoolean("archived", false),
+        id = o.getString("id"),
+        name = o.getString("name"),
+        ownership = Ownership.valueOf(o.getString("ownership")),
+        type = runCatching { br.app.motorista.domain.vehicle.VehicleType.valueOf(o.optString("type", "Car")) }.getOrDefault(br.app.motorista.domain.vehicle.VehicleType.Car),
+        odometerKm = o.longOrNull("odometerKm"),
+        archived = o.optBoolean("archived", false),
     )
 
     override fun idOf(item: Vehicle) = item.id

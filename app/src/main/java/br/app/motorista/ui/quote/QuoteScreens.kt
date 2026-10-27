@@ -58,6 +58,7 @@ fun PrivateTripScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     var rateKm by rememberSaveable { mutableStateOf("") }
     var rateMin by rememberSaveable { mutableStateOf("") }
     var tolls by rememberSaveable { mutableStateOf("") }
+    var modelOk by rememberSaveable { mutableStateOf(false) }
 
     val fields = listOf(pickup, trip, ret, minutes, rateKm, rateMin).map { OfferParsing.decimal(it) }
     val tollsP = OfferParsing.cents(tolls)
@@ -74,8 +75,8 @@ fun PrivateTripScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     ScreenScaffold("Viagem particular", onBack, onOpen) {
         InfoNote("Os preços por km, por minuto e pedágios são seus: o app não sugere nenhum valor. Campo de preço vazio = não cobrar essa linha.")
         TextInput("Km até o embarque", pickup, { pickup = it }, keyboard = KeyboardType.Decimal)
-        TextInput("Km do percurso", trip, { trip = it }, keyboard = KeyboardType.Decimal)
-        TextInput("Km de retorno", ret, { ret = it }, keyboard = KeyboardType.Decimal)
+        TextInput("Percurso da viagem (km)", trip, { trip = it }, keyboard = KeyboardType.Decimal)
+        TextInput("Retorno vazio (km)", ret, { ret = it }, keyboard = KeyboardType.Decimal)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = inclPickup, onCheckedChange = { inclPickup = it })
             Text("Cobrar o embarque", Modifier.weight(1f))
@@ -85,7 +86,7 @@ fun PrivateTripScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
         TextInput("Tempo total (minutos)", minutes, { minutes = it }, keyboard = KeyboardType.Decimal)
         TextInput("Preço por km (R$, opcional)", rateKm, { rateKm = it }, keyboard = KeyboardType.Decimal)
         TextInput("Preço por minuto (R$, opcional)", rateMin, { rateMin = it }, keyboard = KeyboardType.Decimal)
-        TextInput("Pedágios (R$, opcional)", tolls, { tolls = it }, keyboard = KeyboardType.Decimal)
+        TextInput("Pedágios e extras (R$, opcional)", tolls, { tolls = it }, keyboard = KeyboardType.Decimal)
         if (invalid) Text("Há campos inválidos (números não negativos).", color = MaterialTheme.colorScheme.error)
 
         SectionTitle("Orçamento")
@@ -107,15 +108,19 @@ fun PrivateTripScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                 }
             }
         }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = modelOk, onCheckedChange = { modelOk = it })
+            Text("Confirmo este modelo de cobrança (preços e etapas cobradas).", Modifier.weight(1f))
+        }
         Button(
-            enabled = !invalid && quote.lines.isNotEmpty(),
+            enabled = !invalid && quote.lines.isNotEmpty() && modelOk,
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 QuoteDraft.quote = quote
                 QuoteDraft.input = input
                 onOpen("recibo")
             },
-        ) { Text("Gerar orçamento e recibo") }
+        ) { Text("Revisar orçamento e ver modelo de recibo") }
     }
 }
 

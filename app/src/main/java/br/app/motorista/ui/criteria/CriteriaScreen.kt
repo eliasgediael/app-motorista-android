@@ -103,7 +103,7 @@ fun CriteriaScreen(
         SectionTitle("Limites e prioridades")
         SurfaceCard {
             Column {
-                NavRow(Icons.Outlined.Schedule, "Tempo e distância", "Embarque e viagem") { onOpen("perfis") }
+                NavRow(Icons.Outlined.Schedule, "Tempo e distância", "Limites de embarque e viagem") { onOpen("alertas") }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 NavRow(Icons.AutoMirrored.Outlined.List, "Como combinar critérios", "Escolher regra de avaliação · pendente") { onOpen("combinacao") }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

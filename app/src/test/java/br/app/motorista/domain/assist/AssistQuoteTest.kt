@@ -39,6 +39,25 @@ class AssistQuoteTest {
     }
 
     @Test
+    fun allFourLimitsWorkIndependently() {
+        val input = OfferInput(pickupMeters = 5_000, pickupSeconds = 600, tripMeters = 20_000, tripSeconds = 3_000)
+        val none = AlertRules()
+        assertTrue(AlertCalc.evaluate(input, none).isEmpty())
+        val all = AlertRules(BigDecimal("4"), BigDecimal("9"), BigDecimal("15"), BigDecimal("40"))
+        assertEquals(4, AlertCalc.evaluate(input, all).size)
+        val loose = AlertRules(BigDecimal("5"), BigDecimal("10"), BigDecimal("20"), BigDecimal("50"))
+        assertTrue(AlertCalc.evaluate(input, loose).isEmpty())
+    }
+
+    @Test
+    fun marketWordsAreMatchedWithoutAccentsAndOnlyWhenListed() {
+        val words = PlaceMatcher.parseWords("mercado, açougue")
+        assertEquals(2, PlaceMatcher.marketMatches("Acougue do Zé", "Supermercado Central", words).size)
+        assertTrue(PlaceMatcher.marketMatches("Rua das Flores", "Padaria", words).isEmpty())
+        assertTrue(PlaceMatcher.parseWords(null).contains("supermercado"))
+    }
+
+    @Test
     fun placeMatcherIgnoresCaseAndAccentsAndRespectsKind() {
         val terms = listOf(
             FlaggedTerm("1", "Praça", PlaceKind.Pickup),
@@ -59,6 +78,10 @@ class AssistQuoteTest {
         val text = VoiceText.build(listOf(VoiceItem.PerHour, VoiceItem.Origin), "99Pop", "manual", "2,00", "67,64", "1,13", "avaliação amarela")
         assertEquals("Reais por hora 67,64. 99Pop, entrada manual.", text)
         assertEquals("", VoiceText.build(emptyList(), "x", "y", "", "", "", ""))
+        assertEquals(
+            "Valor da viagem 24,80 reais. Embarque distante.",
+            VoiceText.build(listOf(VoiceItem.Fare, VoiceItem.Reason), "p", "o", "", "", "", "", "24,80", "Embarque distante."),
+        )
         assertEquals(listOf(VoiceItem.PerKm, VoiceItem.Assessment), VoiceText.parse(VoiceText.serialize(listOf(VoiceItem.PerKm, VoiceItem.Assessment))))
         assertTrue(VoiceText.parse(null).isEmpty())
     }

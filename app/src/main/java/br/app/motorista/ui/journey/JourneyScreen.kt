@@ -57,6 +57,15 @@ fun JourneyScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
         if (j.status == JourneyStatus.Running || j.status == JourneyStatus.Paused) {
             OutlinedButton(onClick = { confirmEnd = true }, modifier = Modifier.fillMaxWidth()) { Text("Encerrar jornada") }
         }
+        val trips by br.app.motorista.data.AppData.trips.items.collectAsState()
+        val pending = trips.count { it.status == br.app.motorista.domain.history.TripStatus.NotConfirmed && it.epochDay == java.time.LocalDate.now().toEpochDay() }
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Confirmar viagens", fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+                Text(if (pending == 0) "Nenhuma oferta de hoje aguardando confirmação." else "$pending oferta(s) de hoje ainda não confirmadas como realizadas.")
+                OutlinedButton(onClick = { onOpen("historico") }, modifier = Modifier.fillMaxWidth()) { Text("Abrir histórico para confirmar") }
+            }
+        }
         InfoNote("Pausar e retomar não zeram o tempo. Encerrar é uma ação separada. Fases e relatórios (tela 10) ainda não existem.")
     }
 

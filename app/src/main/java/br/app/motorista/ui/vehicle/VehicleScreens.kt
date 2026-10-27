@@ -62,6 +62,7 @@ fun VehiclesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     val activeId = settings.firstOrNull { it.id == "activeVehicle" }?.value
     var name by rememberSaveable { mutableStateOf("") }
     var ownership by rememberSaveable { mutableStateOf(Ownership.Own) }
+    var vType by rememberSaveable { mutableStateOf(br.app.motorista.domain.vehicle.VehicleType.Car) }
     var odometer by rememberSaveable { mutableStateOf("") }
     var odoText by rememberSaveable { mutableStateOf<String?>(null) }
     var odoFor by rememberSaveable { mutableStateOf<String?>(null) }
@@ -73,13 +74,14 @@ fun VehiclesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Novo veículo", fontWeight = FontWeight.SemiBold)
                 TextInput("Nome (ex.: modelo)", name, { name = it })
+                ChoiceChips(br.app.motorista.domain.vehicle.VehicleType.entries, vType, { it.label }) { vType = it }
                 ChoiceChips(Ownership.entries, ownership, { it.label }) { ownership = it }
                 TextInput("Odômetro atual (km, opcional)", odometer, { odometer = it }, error = odoError, keyboard = androidx.compose.ui.text.input.KeyboardType.Number)
                 Button(
                     enabled = name.isNotBlank() && odo !is Parsed.Invalid,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        val v = Vehicle(AppData.newId(), name.trim(), ownership, odo.valueOrNull())
+                        val v = Vehicle(AppData.newId(), name.trim(), ownership, type = vType, odometerKm = odo.valueOrNull())
                         AppData.vehicles.upsert(v)
                         if (AppData.activeVehicle() == null) AppData.putSetting("activeVehicle", v.id)
                         name = ""
@@ -94,7 +96,7 @@ fun VehiclesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             SurfaceCard {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(v.name + (if (v.id == activeId) " · ATIVO" else "") + (if (v.archived) " · arquivado" else ""), fontWeight = FontWeight.SemiBold)
-                    Text(v.ownership.label + " · " + (v.odometerKm?.let { "$it km" } ?: "odômetro desconhecido"), style = MaterialTheme.typography.bodySmall)
+                    Text(v.type.label + " · " + v.ownership.label + " · " + (v.odometerKm?.let { "$it km" } ?: "odômetro desconhecido"), style = MaterialTheme.typography.bodySmall)
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         if (v.id != activeId && !v.archived) TextButton(onClick = { AppData.putSetting("activeVehicle", v.id) }) { Text("Tornar ativo") }
                         TextButton(onClick = {

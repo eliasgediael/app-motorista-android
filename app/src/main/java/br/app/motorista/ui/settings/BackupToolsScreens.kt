@@ -75,6 +75,12 @@ fun BackupScreen(
             Text("Restaurar de um arquivo")
         }
         message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+        SurfaceCard {
+            Column(Modifier.padding(16.dp)) {
+                Text("Sincronização na nuvem", fontWeight = FontWeight.SemiBold)
+                Text("Não implementada. O MVP não usa conta nem nuvem; o backup é um arquivo seu.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         Text(
             "Restaurar substitui os dados atuais. O arquivo é validado antes: se for inválido ou de versão desconhecida, nada muda. " +
                 "Sincronização entre aparelhos e resolução de conflitos: não implementadas.",

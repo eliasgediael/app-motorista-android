@@ -93,6 +93,20 @@ object ReserveCalc {
         spentCents = entries.filter { it.kind == ReserveKind.Spend }.sumOf { it.amountCents },
     )
 
+    /**
+     * Provisão sugerida do mês pela regra do usuário: percentual da receita confirmada do mês, ou valor fixo,
+     * menos o que já foi provisionado no mês. Nunca negativa. Só sugere: registrar é ação do usuário.
+     */
+    fun suggestedProvision(percentOfIncome: java.math.BigDecimal?, fixedCents: Long?, monthIncomeCents: Long, provisionedThisMonthCents: Long): Long {
+        val target = when {
+            percentOfIncome != null -> java.math.BigDecimal(monthIncomeCents).multiply(percentOfIncome).divide(java.math.BigDecimal(100), java.math.MathContext.DECIMAL128)
+                .setScale(0, java.math.RoundingMode.HALF_UP).toLong()
+            fixedCents != null -> fixedCents
+            else -> return 0
+        }
+        return maxOf(0, target - provisionedThisMonthCents)
+    }
+
     /** Gasto acima do saldo é recusado (a reserva não fica negativa). */
     fun canSpend(entries: List<ReserveEntry>, cents: Long): Boolean = cents > 0 && cents <= summary(entries).balanceCents
 }

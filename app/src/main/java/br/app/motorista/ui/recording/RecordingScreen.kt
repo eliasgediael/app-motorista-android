@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import br.app.motorista.copilot.CopilotController
+import br.app.motorista.domain.calc.valueOrNull
 import br.app.motorista.domain.copilot.FeatureStatus
 import br.app.motorista.domain.journey.JourneyClock
 import br.app.motorista.ui.common.InfoNote
@@ -138,6 +139,46 @@ fun RecordingScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
             }
         }
 
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Gravar áudio", fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+                Text(
+                    "Indisponível nesta versão: a gravação é só de vídeo. Áudio exige permissão de microfone, consentimento das pessoas e conferência da política de áudio da plataforma.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        val files = br.app.motorista.ui.settings.recordingFiles(context)
+        var days by rememberSaveable { mutableStateOf(br.app.motorista.data.AppData.setting("recordingRetentionDays") ?: "") }
+        var cleaned by rememberSaveable { mutableStateOf<String?>(null) }
+        val daysParsed = br.app.motorista.domain.calc.OfferParsing.wholeNumber(days)
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Armazenamento e retenção", fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+                Text(files.size.toString() + " gravação(ões), " + (files.sumOf { it.length() } / (1024 * 1024)) + " MB neste aparelho.", style = MaterialTheme.typography.bodySmall)
+                br.app.motorista.ui.common.TextInput(
+                    "Apagar gravações com mais de (dias)", days, { days = it },
+                    keyboard = androidx.compose.ui.text.input.KeyboardType.Number,
+                    error = if (daysParsed is br.app.motorista.domain.calc.Parsed.Invalid) "Número inteiro" else null,
+                )
+                OutlinedButton(
+                    enabled = daysParsed is br.app.motorista.domain.calc.Parsed.Ok,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val d = daysParsed.valueOrNull() ?: return@OutlinedButton
+                        br.app.motorista.data.AppData.putSetting("recordingRetentionDays", d.toString())
+                        val limit = System.currentTimeMillis() - d * 86_400_000L
+                        val old = files.filter { it.lastModified() < limit }
+                        old.forEach { it.delete() }
+                        cleaned = old.size.toString() + " gravação(ões) apagada(s)."
+                    },
+                ) { Text("Apagar as mais antigas agora") }
+                cleaned?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                Text("Nada é apagado sem você tocar no botão. Se não definir os dias, as gravações ficam até você excluir.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        OutlinedButton(onClick = { onOpen("gravacoes") }, modifier = Modifier.fillMaxWidth()) { Text("Ver biblioteca") }
         InfoNote("Não validado em aparelho real ainda: abertura da câmera em segundo plano, câmera ocupada e pouco espaço.")
     }
 }

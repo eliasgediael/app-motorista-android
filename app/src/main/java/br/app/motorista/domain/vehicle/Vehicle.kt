@@ -10,10 +10,13 @@ enum class Ownership(val label: String) {
 }
 
 /** Veículo cadastrado pelo usuário. Odômetro desconhecido é null, nunca zero. */
+enum class VehicleType(val label: String) { Car("Carro"), Moto("Moto") }
+
 data class Vehicle(
     val id: String,
     val name: String,
     val ownership: Ownership,
+    val type: VehicleType = VehicleType.Car,
     val odometerKm: Long? = null,
     val archived: Boolean = false,
 )
