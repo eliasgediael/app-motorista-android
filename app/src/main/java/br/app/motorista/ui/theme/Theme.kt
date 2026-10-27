@@ -14,7 +14,7 @@ object FunctionalColors {
     val Bad = Color(0xFFE5484D)
 }
 
-val Green = Color(0xFF1B8A5A)
+val Green = Color(0xFF159B67)
 val GreenSoft = Color(0xFFE6F4EC)
 val SurfaceLight = Color(0xFFF6F8F7)
 val TextPrimary = Color(0xFF15211B)

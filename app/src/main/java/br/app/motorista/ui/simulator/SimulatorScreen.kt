@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import br.app.motorista.domain.offer.Freshness
 import br.app.motorista.domain.offer.OfferOrigin
 import br.app.motorista.domain.offer.OfferSnapshot
 import br.app.motorista.domain.offer.Platform
+import br.app.motorista.floating.FloatingControlService
 import br.app.motorista.offer.BalloonHub
 import br.app.motorista.ui.card.PreviewFrame
 import br.app.motorista.ui.common.InfoNote
@@ -152,6 +154,9 @@ fun SimulatorScreen(
 
         SectionTitle("Enviar ao balão flutuante")
         PublishSection(state, parsed, onChange)
+
+        SectionTitle("Diagnóstico do balão flutuante")
+        DiagnosticSection()
     }
 }
 
@@ -191,6 +196,29 @@ private fun AssessmentSection(evaluation: Evaluation, state: PreferencesState, p
         }
     }
     OutlinedButton(onClick = { onOpen("combinacao") }, modifier = Modifier.fillMaxWidth()) { Text("Combinar critérios") }
+}
+
+/** Balões de EXEMPLO no botão flutuante: só diagnóstico, nunca aparecem no menu de operação. */
+@Composable
+private fun DiagnosticSection() {
+    val context = LocalContext.current
+    var message by remember { mutableStateOf<String?>(null) }
+    Text(
+        "Mostra um balão de exemplo (dados fictícios) pelo botão flutuante, para conferir cores e layout. Não é oferta nem leitura real.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        PreviewState.entries.forEach { s ->
+            OutlinedButton(
+                onClick = {
+                    message = if (FloatingControlService.showSample(context, s)) null else "Ligue o copiloto em Controle flutuante antes."
+                },
+                modifier = Modifier.weight(1f),
+            ) { Text(s.label) }
+        }
+    }
+    message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
 }
 
 @Composable

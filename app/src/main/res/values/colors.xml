@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Verde fixo da marca provisória: ícone do app e botão flutuante. Não varia com a avaliação. -->
-    <color name="brand_green">#FF1B8A5A</color>
+    <!-- Verde fixo da marca (assets revisados): ícone do app e botão flutuante. Não varia com a avaliação. -->
+    <color name="brand_green">#FF159B67</color>
     <color name="brand_white">#FFFFFFFF</color>
 </resources>

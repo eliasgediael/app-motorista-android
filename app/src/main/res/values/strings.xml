@@ -1,5 +1,5 @@
 <resources>
-    <!-- Nome provisório: marca própria ainda pendente. -->
-    <string name="app_name">App Motorista</string>
+    <!-- Nome conforme referências revisadas (No Ponto); applicationId permanece br.app.motorista. -->
+    <string name="app_name">No Ponto</string>
     <string name="floating_button_description">Botão flutuante. Toque para abrir os controles.</string>
 </resources>

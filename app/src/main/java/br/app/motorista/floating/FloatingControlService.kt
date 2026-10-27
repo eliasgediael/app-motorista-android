@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.content.res.Configuration
 import android.graphics.PixelFormat
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
@@ -25,17 +24,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -45,6 +41,9 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import br.app.motorista.R
+import br.app.motorista.copilot.ControllerActions
+import br.app.motorista.copilot.CopilotController
+import br.app.motorista.copilot.CopilotUiState
 import br.app.motorista.domain.card.PreviewState
 import br.app.motorista.domain.offer.Platform
 import br.app.motorista.domain.offer.Slot
@@ -58,34 +57,46 @@ import br.app.motorista.ui.components.OfferBalloon
 import br.app.motorista.ui.components.UnavailableBalloon
 import br.app.motorista.ui.components.color
 import br.app.motorista.ui.components.toPreviewState
+import br.app.motorista.ui.copilot.CopilotMenu
 import br.app.motorista.ui.theme.AppTheme
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 /**
- * Botão flutuante do PRÓPRIO aplicativo, com menu de controles e balão.
+ * Botão flutuante do PRÓPRIO aplicativo (copiloto No Ponto): botão, menu operacional e balão.
  *
- * Três elementos separados: o botão (verde fixo, símbolo branco, opacidade própria), o menu e o balão
- * (mesmo componente da prévia do app, com o mesmo estilo e a opacidade do balão). A cor do botão não
- * acompanha a avaliação.
+ * Três janelas separadas: o botão (verde fixo, símbolo branco, opacidade própria), o menu (controles
+ * ligados a [CopilotController]) e o balão (mesmo componente da prévia do app). A cor do botão nunca
+ * acompanha a avaliação. Os controles só pedem ações; o estado muda quando o serviço real confirma.
  *
  * Limites deliberados: não lê outros aplicativos, não conhece o contexto de 99/Uber, não executa
- * toques/gestos, não aceita nem recusa corridas. A área útil usada aqui é só a da tela (sem barras do
- * sistema); NÃO protege botões de outros aplicativos, o que depende de validação real em aparelho.
+ * toques/gestos, não aceita nem recusa corridas. A área útil é só a da tela (sem barras do sistema):
+ * NÃO protege botões de outros aplicativos, o que depende de validação real em aparelho.
  */
 class FloatingControlService : Service() {
     private lateinit var windowManager: WindowManager
     private val handler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private var buttonView: View? = null
     private var buttonParams: WindowManager.LayoutParams? = null
-    private var menuView: View? = null
+
+    private var menuView: ComposeView? = null
+    private var menuOwner: OverlayOwner? = null
 
     private var balloonView: ComposeView? = null
     private var balloonOwner: OverlayOwner? = null
     private var balloonModel by mutableStateOf<BalloonModel?>(null)
 
-    /** Oferta real em exibição (null quando o balão mostra exemplo ou indisponibilidade). */
+    /** Oferta em exibição (null quando o balão mostra diagnóstico ou indisponibilidade). */
     private var shownOffer: ShownOffer? = null
+    private var lastAutoOfferId: String? = null
 
     private val hideBalloonRunnable = Runnable { hideBalloon() }
     private val validityTick = object : Runnable {
@@ -94,6 +105,8 @@ class FloatingControlService : Service() {
             if (shownOffer != null) handler.postDelayed(this, TICK_MS)
         }
     }
+    private val hubListener: () -> Unit = { handler.post { onHubChanged() } }
+    private val opacityListener: () -> Unit = { handler.post { buttonView?.alpha = FloatingConfig.buttonOpacity } }
 
     private sealed interface BalloonModel {
         data class Sample(val state: PreviewState) : BalloonModel
@@ -108,8 +121,9 @@ class FloatingControlService : Service() {
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        BalloonHub.listener = { handler.post { refreshOfferBalloon() } }
-        FloatingConfig.onButtonOpacityChanged = { handler.post { buttonView?.alpha = FloatingConfig.buttonOpacity } }
+        CopilotController.ensureInit(this)
+        BalloonHub.addListener(hubListener)
+        FloatingConfig.onButtonOpacityChanged = opacityListener
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -123,8 +137,16 @@ class FloatingControlService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        if (buttonView == null) addButton()
+        if (buttonView == null) {
+            addButton()
+            scope.launch { CopilotController.state.collect { onControllerState(it) } }
+        }
+        if (intent?.action == ACTION_SAMPLE) {
+            val state = runCatching { PreviewState.valueOf(intent.getStringExtra(EXTRA_SAMPLE) ?: "") }.getOrNull()
+            if (state != null) showSample(state)
+        }
         _running.value = true
+        CopilotController.refresh()
         return START_NOT_STICKY
     }
 
@@ -142,15 +164,25 @@ class FloatingControlService : Service() {
     }
 
     override fun onDestroy() {
-        BalloonHub.listener = null
+        BalloonHub.removeListener(hubListener)
         FloatingConfig.onButtonOpacityChanged = null
+        scope.cancel()
         handler.removeCallbacksAndMessages(null)
         hideBalloon()
         removeMenu()
         buttonView?.let { runCatching { windowManager.removeView(it) } }
         buttonView = null
         _running.value = false
+        CopilotController.refresh()
         super.onDestroy()
+    }
+
+    // ---- reação ao estado único do copiloto ----
+
+    private fun onControllerState(s: CopilotUiState) {
+        buttonView?.visibility = if (s.buttonVisible) View.VISIBLE else View.GONE
+        if (!s.buttonVisible) removeMenu()
+        if (s.balloonHidden && balloonView != null) hideBalloon()
     }
 
     // ---- notificação obrigatória do serviço em primeiro plano ----
@@ -166,9 +198,9 @@ class FloatingControlService : Service() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("Botão flutuante ativo")
-            .setContentText("Ferramenta do próprio aplicativo. Sem integração com 99Pop.")
-            .setSmallIcon(R.drawable.ic_symbol)
+            .setContentTitle("Copiloto No Ponto ativo")
+            .setContentText("Botão flutuante do próprio aplicativo. Sem integração com 99Pop.")
+            .setSmallIcon(R.drawable.no_ponto_simbolo)
             .setOngoing(true)
             .addAction(
                 Notification.Action.Builder(
@@ -216,23 +248,16 @@ class FloatingControlService : Service() {
             PixelFormat.TRANSLUCENT,
         )
 
-    // ---- botão: verde fixo, símbolo branco, opacidade própria ----
+    // ---- botão: verde fixo com símbolo branco (arte do projeto), opacidade própria ----
 
     private fun addButton() {
         val size = buttonSize()
-        val symbol = ImageView(this).apply {
-            setImageResource(R.drawable.ic_symbol)
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        val button = FrameLayout(this).apply {
+        val button = View(this).apply {
             contentDescription = getString(R.string.floating_button_description)
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(getColor(R.color.brand_green))
-            }
+            // Verde fixo e símbolo branco vêm do drawable; nada aqui depende da avaliação da corrida.
+            background = getDrawable(R.drawable.no_ponto_botao)
             alpha = FloatingConfig.buttonOpacity
             elevation = dp(4).toFloat()
-            addView(symbol, FrameLayout.LayoutParams(dp(28), dp(28), Gravity.CENTER))
         }
         val bounds = usableBounds()
         val start = OverlayGeometry.clamp(bounds.left + dp(12), bounds.top + dp(160), size, size, bounds)
@@ -282,7 +307,7 @@ class FloatingControlService : Service() {
         }
     }
 
-    // ---- menu de controles, limitado à área útil ----
+    // ---- menu operacional, limitado à área útil ----
 
     private fun toggleMenu() {
         if (menuView != null) removeMenu() else showMenu()
@@ -290,115 +315,102 @@ class FloatingControlService : Service() {
 
     private fun showMenu() {
         val anchor = buttonParams ?: return
-        val column = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-        }
-        column.addView(menuTitle("Controles"))
-        column.addView(menuItem("Última oferta analisada", INK) { showLatestOffer() })
-        column.addView(menuItem("Balão verde (exemplo)", PreviewState.Good.color().toArgb()) { showSample(PreviewState.Good) })
-        column.addView(menuItem("Balão amarelo (exemplo)", PreviewState.Attention.color().toArgb()) { showSample(PreviewState.Attention) })
-        column.addView(menuItem("Balão vermelho (exemplo)", PreviewState.Bad.color().toArgb()) { showSample(PreviewState.Bad) })
-        column.addView(menuItem("Ocultar balão", INK) { hideBalloon() })
-        column.addView(menuItem("Abrir aplicativo", INK) { openApp() })
-        column.addView(menuItem("Desligar botão", 0xFFB3261E.toInt()) { stopSelf() })
-
-        val scroll = ScrollView(this).apply {
-            addView(column)
-            background = GradientDrawable().apply {
-                setColor(0xFFFFFFFF.toInt())
-                cornerRadius = dp(16).toFloat()
-                setStroke(dp(1), 0xFFDDE5E0.toInt())
-            }
-            elevation = dp(8).toFloat()
-        }
-
+        CopilotController.refreshPermissions()
         val bounds = usableBounds()
-        val menuW = dp(240).coerceAtMost(bounds.width)
-        column.measure(
-            View.MeasureSpec.makeMeasureSpec(menuW, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-        )
-        val menuH = column.measuredHeight.coerceAtMost(bounds.height)
-        val p = OverlayGeometry.placeMenu(IntPoint(anchor.x, anchor.y), buttonSize(), dp(8), menuW, menuH, bounds)
-
-        val params = overlayParams(menuW, menuH, WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = p.x
-            y = p.y
+        val menuW = dp(340).coerceAtMost(bounds.width)
+        val maxHeightDp = (bounds.height / resources.displayMetrics.density).dp
+        val owner = OverlayOwner()
+        val actions = ControllerActions(this)
+        val view = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setViewTreeLifecycleOwner(owner)
+            setViewTreeSavedStateRegistryOwner(owner)
+            setContent {
+                AppTheme {
+                    val state by CopilotController.state.collectAsState()
+                    CopilotMenu(
+                        state = state,
+                        actions = actions,
+                        onSettings = {
+                            removeMenu()
+                            CopilotController.openApp(this@FloatingControlService, "atalhos")
+                        },
+                        maxHeight = maxHeightDp,
+                    )
+                }
+            }
         }
-        scroll.setOnTouchListener { _, event ->
+        val start = OverlayGeometry.placeMenu(IntPoint(anchor.x, anchor.y), buttonSize(), dp(8), menuW, dp(240), bounds)
+        val params = overlayParams(menuW, ViewGroup.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = start.x
+            y = start.y
+        }
+        view.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_OUTSIDE) removeMenu()
             false
         }
-        windowManager.addView(scroll, params)
-        menuView = scroll
+        // Com a altura real conhecida (e a cada mudança de conteúdo), reposiciona dentro da área útil.
+        view.viewTreeObserver.addOnGlobalLayoutListener { placeMenuNow(view, menuW) }
+        windowManager.addView(view, params)
+        menuView = view
+        menuOwner = owner
     }
 
-    private fun menuTitle(text: String) = TextView(this).apply {
-        this.text = text
-        textSize = 12f
-        setTextColor(GREY)
-        setPadding(dp(12), dp(6), dp(12), dp(6))
-    }
-
-    private fun menuItem(text: String, color: Int, action: () -> Unit) = TextView(this).apply {
-        this.text = text
-        textSize = 15f
-        setTextColor(color)
-        minHeight = dp(48)
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(dp(12), 0, dp(12), 0)
-        setOnClickListener {
-            removeMenu()
-            action()
+    private fun placeMenuNow(view: ComposeView, menuW: Int) {
+        val anchor = buttonParams ?: return
+        val params = view.layoutParams as? WindowManager.LayoutParams ?: return
+        if (view.height <= 0 || view.parent == null) return
+        val bounds = usableBounds()
+        val p = OverlayGeometry.placeMenu(
+            IntPoint(anchor.x, anchor.y), buttonSize(), dp(8), menuW, view.height.coerceAtMost(bounds.height), bounds,
+        )
+        if (p.x != params.x || p.y != params.y) {
+            params.x = p.x
+            params.y = p.y
+            runCatching { windowManager.updateViewLayout(view, params) }
         }
     }
 
     private fun removeMenu() {
         menuView?.let { runCatching { windowManager.removeView(it) } }
         menuView = null
-    }
-
-    private fun openApp() {
-        packageManager.getLaunchIntentForPackage(packageName)
-            ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            ?.let { startActivity(it) }
+        menuOwner?.destroy()
+        menuOwner = null
     }
 
     // ---- balão: mesmo componente e mesmas configurações da prévia ----
 
+    /** Diagnóstico: balão de exemplo, pedido pela tela do simulador. Nunca aparece no menu de operação. */
     private fun showSample(state: PreviewState) {
         stopOfferTracking()
         display(BalloonModel.Sample(state))
     }
 
-    /**
-     * Mostra a última oferta publicada. Só exibe valores se ela ainda é a atual e está dentro do prazo;
-     * caso contrário mostra indisponibilidade. Enquanto visível, [refreshOfferBalloon] a invalida.
-     */
-    private fun showLatestOffer() {
-        val published = BalloonHub.latestAny()
-        if (published == null) {
-            stopOfferTracking()
-            display(BalloonModel.Unavailable(null, "Nenhuma oferta analisada ainda."))
+    private fun onHubChanged() {
+        if (shownOffer != null) {
+            refreshOfferBalloon()
             return
         }
-        val slot = BalloonHub.store.slot(published.platform, SystemClock.elapsedRealtime())
-        if (slot !is Slot.Fresh || slot.snapshot.id != published.offerId) {
-            stopOfferTracking()
-            display(BalloonModel.Unavailable(originOf(published), "A última oferta expirou ou foi substituída. Nenhum resultado antigo é mostrado."))
-            return
-        }
+        if (CopilotController.state.value.balloonHidden || buttonView == null) return
+        val latest = BalloonHub.latestAny() ?: return
+        if (latest.offerId == lastAutoOfferId) return
+        val slot = BalloonHub.store.slot(latest.platform, SystemClock.elapsedRealtime())
+        if (slot !is Slot.Fresh || slot.snapshot.id != latest.offerId) return
+        lastAutoOfferId = latest.offerId
+        showOffer(latest, slot.ageMs / 1000)
+    }
+
+    private fun showOffer(published: PublishedBalloon, ageSeconds: Long) {
         shownOffer = ShownOffer(published.platform, published.offerId)
-        display(BalloonModel.Offer(published, slot.ageMs / 1000))
+        display(BalloonModel.Offer(published, ageSeconds))
         handler.removeCallbacks(validityTick)
         handler.postDelayed(validityTick, TICK_MS)
     }
 
     /**
-     * Revalida a oferta exibida (a cada tick e a cada mudança no hub): expirou, sumiu ou foi trocada
-     * por outra. Troca válida atualiza o balão; qualquer outro caso o remove na hora.
+     * Revalida a oferta exibida (a cada tick e a cada mudança no hub): expirou, sumiu ou foi trocada.
+     * Troca válida atualiza o balão; qualquer outro caso o remove na hora.
      */
     private fun refreshOfferBalloon() {
         val shown = shownOffer ?: return
@@ -457,16 +469,14 @@ class FloatingControlService : Service() {
     private fun hideBalloon() {
         handler.removeCallbacks(hideBalloonRunnable)
         stopOfferTracking()
-        balloonView?.let {
-            runCatching { windowManager.removeView(it) }
-        }
+        balloonView?.let { runCatching { windowManager.removeView(it) } }
         balloonView = null
         balloonOwner?.destroy()
         balloonOwner = null
         balloonModel = null
     }
 
-    @androidx.compose.runtime.Composable
+    @Composable
     private fun BalloonContent(model: BalloonModel?) {
         val style = FloatingConfig.style
         AppTheme {
@@ -510,15 +520,15 @@ class FloatingControlService : Service() {
 
     companion object {
         const val ACTION_STOP = "br.app.motorista.floating.STOP"
+        const val ACTION_SAMPLE = "br.app.motorista.floating.SAMPLE"
+        const val EXTRA_SAMPLE = "state"
         private const val CHANNEL_ID = "floating_control"
         private const val NOTIFICATION_ID = 1
         private const val BALLOON_SECONDS = 8
         private const val TICK_MS = 500L
-        private const val GREY = 0xFF5F6E66.toInt()
-        private const val INK = 0xFF15211B.toInt()
 
-        private val _running = kotlinx.coroutines.flow.MutableStateFlow(false)
-        val running: kotlinx.coroutines.flow.StateFlow<Boolean> = _running
+        private val _running = MutableStateFlow(false)
+        val running: StateFlow<Boolean> = _running
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, FloatingControlService::class.java))
@@ -526,6 +536,15 @@ class FloatingControlService : Service() {
 
         fun stop(context: Context) {
             context.stopService(Intent(context, FloatingControlService::class.java))
+        }
+
+        /** Diagnóstico: mostra um balão de exemplo se o copiloto estiver ligado. */
+        fun showSample(context: Context, state: PreviewState): Boolean {
+            if (!_running.value) return false
+            context.startService(
+                Intent(context, FloatingControlService::class.java).setAction(ACTION_SAMPLE).putExtra(EXTRA_SAMPLE, state.name),
+            )
+            return true
         }
     }
 }

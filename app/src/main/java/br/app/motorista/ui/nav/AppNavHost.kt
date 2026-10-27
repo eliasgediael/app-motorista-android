@@ -14,7 +14,10 @@ import br.app.motorista.floating.FloatingConfig
 import br.app.motorista.ui.balloon.BalloonPreviewScreen
 import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
+import br.app.motorista.ui.copilot.CopilotMenuScreen
 import br.app.motorista.ui.criteria.CriteriaScreen
+import br.app.motorista.ui.journey.JourneyScreen
+import br.app.motorista.ui.recording.RecordingScreen
 import br.app.motorista.ui.floating.FloatingControlScreen
 import br.app.motorista.ui.simulator.SimulatorScreen
 import br.app.motorista.ui.criteria.CriterionEditorScreen
@@ -44,6 +47,8 @@ fun NavHostController.openScreen(id: String) {
 
 @Composable
 fun AppNavHost(
+    pendingRoute: String? = null,
+    onRouteConsumed: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
     preferences: PreferencesViewModel = viewModel(),
 ) {
@@ -95,6 +100,9 @@ fun AppNavHost(
                     onBack = back,
                     onOpen = open,
                 )
+                "menu-flutuante" -> CopilotMenuScreen(onBack = back, onOpen = open)
+                "camera" -> RecordingScreen(onBack = back, onOpen = open)
+                "jornada" -> JourneyScreen(onBack = back, onOpen = open)
                 "atalhos" -> FloatingControlScreen(
                     buttonOpacity = state.buttonOpacity,
                     onButtonOpacity = preferences::setButtonOpacity,
@@ -106,6 +114,14 @@ fun AppNavHost(
                 "balao-ruim" -> BalloonPreviewScreen(PreviewState.Bad, state, back, open)
                 else -> PlaceholderScreen(screen = ScreenCatalog.find(id), onBack = back)
             }
+        }
+    }
+
+    // Rota pedida de fora (menu flutuante). Fica depois do NavHost para o grafo já existir.
+    LaunchedEffect(pendingRoute) {
+        pendingRoute?.let {
+            navController.openScreen(it)
+            onRouteConsumed()
         }
     }
 }

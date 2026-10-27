@@ -62,8 +62,8 @@ import br.app.motorista.ui.nav.BottomTab
 import br.app.motorista.ui.theme.FunctionalColors
 
 /**
- * Painel (telas/01-painel). Os interruptores são apenas estado de prévia:
- * nenhum serviço de copiloto, análise ou gravação existe ainda.
+ * Painel (telas/01-painel). Copiloto, gravação, voz e jornada vêm do estado real compartilhado
+ * ([CopilotCards]); análise de corridas aparece como não implementada, sem interruptor.
  */
 @Composable
 fun HomeScreen(onOpen: (String) -> Unit) {
@@ -82,37 +82,7 @@ fun HomeScreen(onOpen: (String) -> Unit) {
         ) {
             AccessCard(onClick = { onOpen("conta") })
 
-            val context = LocalContext.current
-            val copilot by FloatingControlService.running.collectAsState()
-            var analysis by rememberSaveable { mutableStateOf(false) }
-            var recording by rememberSaveable { mutableStateOf(false) }
-
-            FeatureToggleCard(
-                icon = Icons.Outlined.GridView,
-                title = "Copiloto",
-                subtitle = "Botão flutuante do app · simulação, sem 99Pop",
-                checked = copilot,
-                onCheckedChange = { on -> if (on) onOpen("atalhos") else FloatingControlService.stop(context) },
-                onSettings = { onOpen("atalhos") },
-            )
-            FeatureToggleCard(
-                icon = Icons.Outlined.BarChart,
-                title = "Análise de corridas",
-                subtitle = "Aplicativos não configurados · prévia",
-                checked = analysis,
-                onCheckedChange = { analysis = it },
-                onSettings = { onOpen("criterios") },
-            )
-            FeatureToggleCard(
-                icon = Icons.Outlined.PhotoCamera,
-                title = "Gravação de segurança",
-                subtitle = "Controle visível · prévia, sem câmera",
-                checked = recording,
-                onCheckedChange = { recording = it },
-                onSettings = { onOpen("camera") },
-            )
-
-            ShiftCard(onClick = { onOpen("jornada") })
+            CopilotCards(onOpen)
             RangesCard(onConfigure = { onOpen("criterios") })
 
             Row(

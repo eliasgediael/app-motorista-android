@@ -30,9 +30,18 @@ object BalloonHub {
 
     private var latestByPlatform = mutableMapOf<Platform, PublishedBalloon>()
 
-    /** Avisa quem exibe balão que a oferta atual mudou (publicada, substituída ou invalidada). */
-    @Volatile
-    var listener: (() -> Unit)? = null
+    /** Avisa quem exibe balão ou fala que a oferta atual mudou (publicada, substituída ou invalidada). */
+    private val listeners = java.util.concurrent.CopyOnWriteArrayList<() -> Unit>()
+
+    fun addListener(l: () -> Unit) {
+        listeners.add(l)
+    }
+
+    fun removeListener(l: () -> Unit) {
+        listeners.remove(l)
+    }
+
+    private fun notifyChanged() = listeners.forEach { it() }
 
     @Synchronized
     fun publish(snapshot: OfferSnapshot, evaluation: Evaluation, values: BalloonValues): Boolean {
@@ -47,7 +56,7 @@ object BalloonHub {
             note = noteFor(a),
             values = values,
         )
-        listener?.invoke()
+        notifyChanged()
         return true
     }
 
@@ -63,7 +72,7 @@ object BalloonHub {
     fun invalidate(platform: Platform) {
         store.invalidate(platform)
         latestByPlatform.remove(platform)
-        listener?.invoke()
+        notifyChanged()
     }
 
     private fun noteFor(a: Assessment): String = when (a) {

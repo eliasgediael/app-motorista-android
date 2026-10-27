@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_VERSION_NAME: "0.1.1"
+  APP_VERSION_NAME: "0.2.0"
 
 jobs:
   build:
@@ -74,3 +74,45 @@ jobs:
             --title "Teste ${APP_VERSION_NAME} (build ${GITHUB_RUN_NUMBER}, ${GITHUB_SHA::7})" \
             --notes "APK de TESTE. Versão ${APP_VERSION_NAME}, commit ${GITHUB_SHA}. Sem integração com 99Pop; balões e botão são simulação. Mesma assinatura de teste em todas as versões." \
             --prerelease
+
+  ui-tests:
+    # Testes de interface em EMULADOR (texto medido de verdade). Não é o aparelho do usuário.
+    # Separado do build para que falha/instabilidade do emulador não bloqueie o APK; o resultado fica visível.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@v4
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "9.8.2"
+
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Testes instrumentados (emulador API 34)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: gradle --no-daemon :app:connectedDebugAndroidTest
+
+      - name: Relatório
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-testes-emulador
+          path: app/build/reports/androidTests/
+          if-no-files-found: ignore

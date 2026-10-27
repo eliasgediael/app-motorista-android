@@ -63,6 +63,6 @@ object ScreenCatalog {
 
     /** Telas com implementação própria; as demais mostram o marcador "ainda não implementada". */
     val implemented: Set<String> = setOf(
-        "painel", "criterios", "editar-criterio", "cartao", "balao-boa", "balao-atencao", "balao-ruim", "combinacao", "atalhos",
+        "painel", "criterios", "editar-criterio", "cartao", "balao-boa", "balao-atencao", "balao-ruim", "combinacao", "atalhos", "camera", "jornada", "menu-flutuante",
     )
 }
