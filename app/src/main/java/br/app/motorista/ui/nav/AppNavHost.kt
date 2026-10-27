@@ -25,6 +25,8 @@ import br.app.motorista.ui.quote.PrivateTripScreen
 import br.app.motorista.ui.quote.ReceiptScreen
 import br.app.motorista.ui.recording.RecordingsScreen
 import br.app.motorista.ui.card.FieldOrderScreen
+import br.app.motorista.ui.reader.ReaderScreen
+import br.app.motorista.ui.testride.TestRideScreen
 import br.app.motorista.ui.card.SafeAreaScreen
 import br.app.motorista.ui.card.SecondaryCardScreen
 import br.app.motorista.ui.finance.CategoriesScreen
@@ -161,6 +163,8 @@ fun AppNavHost(
                 "particular" -> PrivateTripScreen(back, open)
                 "recibo" -> ReceiptScreen(back, open)
                 "gravacoes" -> RecordingsScreen(back, open)
+                "leitura" -> ReaderScreen(back, open)
+                "corrida-teste" -> TestRideScreen(state, back, open)
                 "financas" -> FinanceScreen(back, open)
                 "lancamento" -> EntryFormScreen(back, open)
                 "categorias" -> CategoriesScreen(back, open)

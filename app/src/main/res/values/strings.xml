@@ -2,4 +2,5 @@
     <!-- Nome conforme referências revisadas (No Ponto); applicationId permanece br.app.motorista. -->
     <string name="app_name">No Ponto</string>
     <string name="floating_button_description">Botão flutuante. Toque para abrir os controles.</string>
+    <string name="reader_description">Lê o texto visível do aplicativo de corrida que você escolher, para calcular e mostrar o balão. Não toca na tela, não aceita nem recusa corridas e não envia nada. Você pode desligar a qualquer momento.</string>
 </resources>

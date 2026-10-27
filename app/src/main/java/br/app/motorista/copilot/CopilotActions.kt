@@ -9,6 +9,9 @@ interface CopilotActions {
     fun stopRecording()
     fun cancelRecording()
     fun setVoice(on: Boolean)
+    fun setAnalysis(on: Boolean)
+    fun openAccessibilitySettings()
+    fun captureSample()
     fun journeyStart()
     fun journeyPause()
     fun journeyResume()
@@ -25,6 +28,14 @@ class ControllerActions(private val context: Context) : CopilotActions {
     override fun stopRecording() = CopilotController.stopRecording(context)
     override fun cancelRecording() = CopilotController.stopRecording(context)
     override fun setVoice(on: Boolean) = CopilotController.setVoice(on)
+    override fun setAnalysis(on: Boolean) = CopilotController.setAnalysis(on)
+    override fun openAccessibilitySettings() {
+        context.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+    override fun captureSample() {
+        val r = br.app.motorista.reader.OfferReaderService.captureSample(context)
+        br.app.motorista.reader.ReaderState.setSample(r.fold({ "Amostra salva: " + it.name }, { it.message ?: "Falha ao capturar" }))
+    }
     override fun journeyStart() = CopilotController.journeyStart()
     override fun journeyPause() = CopilotController.journeyPause()
     override fun journeyResume() = CopilotController.journeyResume()

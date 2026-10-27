@@ -108,7 +108,7 @@ fun HomeScreen(onOpen: (String) -> Unit) {
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 QuickTool(Icons.AutoMirrored.Outlined.Message, "Mensagem preparada", Modifier.weight(1f)) { onOpen("mensagem") }
-                Box(Modifier.weight(1f))
+                QuickTool(Icons.Outlined.GridView, "Corrida de teste", Modifier.weight(1f)) { onOpen("corrida-teste") }
             }
             Text(
                 "Versão " + BuildConfig.VERSION_NAME + " · " + BuildConfig.GIT_SHA + " · build de teste",

@@ -37,6 +37,7 @@ import br.app.motorista.domain.assist.FlaggedTerm
 import br.app.motorista.domain.assist.MessageConfig
 import br.app.motorista.domain.assist.MessageTemplate
 import br.app.motorista.domain.assist.PlaceKind
+import br.app.motorista.domain.assist.PlaceMatcher
 import br.app.motorista.domain.assist.VoiceItem
 import br.app.motorista.domain.assist.VoiceText
 import br.app.motorista.domain.calc.OfferParsing
@@ -161,6 +162,27 @@ fun PlacesScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                         text = ""
                     },
                 ) { Text("Adicionar") }
+            }
+        }
+        val settings by AppData.settings.items.collectAsState()
+        val marketOn = settings.firstOrNull { it.id == "marketAlert" }?.value == "true"
+        SurfaceCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Avisar sobre mercados", Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                    Switch(checked = marketOn, onCheckedChange = { AppData.putSetting("marketAlert", it.toString()) })
+                }
+                Text(
+                    "Avisa quando o embarque ou o destino digitado contém uma destas palavras. Edite a lista como quiser (separe por vírgula).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                TextInput(
+                    "Palavras",
+                    settings.firstOrNull { it.id == "marketWords" }?.value ?: PlaceMatcher.DEFAULT_MARKET_WORDS.joinToString(", "),
+                    { AppData.putSetting("marketWords", it) },
+                    singleLine = false,
+                )
             }
         }
         SectionTitle("Seus termos")
@@ -294,3 +316,7 @@ fun HelpScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
 
 /** Texto do aplicativo de outra tela precisa do veículo; aqui só auxiliar de compra de preço. */
 internal fun parseDecimalOrNull(s: String): BigDecimal? = OfferParsing.decimal(s).valueOrNull()
+
+/** Avisos de mercado atuais: vazio se o aviso está desligado. */
+fun marketMatchesNow(pickup: String, dropoff: String): List<String> =
+    if (AppData.setting("marketAlert") == "true") PlaceMatcher.marketMatches(pickup, dropoff, PlaceMatcher.parseWords(AppData.setting("marketWords"))) else emptyList()

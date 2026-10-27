@@ -77,13 +77,24 @@ fun CopilotCards(onOpen: (String) -> Unit) {
         )
     }
 
-    // Análise de corridas: sem serviço real, sem interruptor.
+    // Análise de corridas: liga o leitor de ofertas (acessibilidade, somente leitura)
+    val an = state.analysis
     Card2(
         icon = Icons.Outlined.Traffic,
         title = "Análise de corridas",
-        subtitle = "Não implementado · " + (state.analysis.detail ?: ""),
-        onSettings = { onOpen("criterios") },
-    ) {}
+        subtitle = when (an.status) {
+            FeatureStatus.Active -> "Ativa · layout dos apps ainda não validado"
+            FeatureStatus.Off -> "Desligada"
+            else -> an.detail ?: an.status.label
+        },
+        onSettings = { onOpen("leitura") },
+    ) {
+        when (an.status) {
+            FeatureStatus.PermissionNeeded -> OutlinedButton(onClick = { actions.openAccessibilitySettings() }) { Text("Permitir") }
+            FeatureStatus.Starting, FeatureStatus.Stopping -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+            else -> Switch(checked = an.status == FeatureStatus.Active, onCheckedChange = { actions.setAnalysis(it) })
+        }
+    }
 
     // Gravação
     val rec = state.recording

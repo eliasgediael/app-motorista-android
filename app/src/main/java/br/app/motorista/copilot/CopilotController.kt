@@ -33,7 +33,7 @@ data class CopilotUiState(
     val buttonVisible: Boolean = true,
     /** Só oculta o balão. Não desliga análise, voz nem gravação. */
     val balloonHidden: Boolean = false,
-    val analysis: FeatureUi = FeatureUi(FeatureStatus.NotImplemented, ANALYSIS_REASON),
+    val analysis: FeatureUi = FeatureUi(FeatureStatus.Off),
     val recording: FeatureUi = FeatureUi(FeatureStatus.Off),
     /** SystemClock.elapsedRealtime() em que a gravação foi confirmada; base da duração. */
     val recordingStartedAt: Long? = null,
@@ -60,6 +60,8 @@ object CopilotController {
     private var initialized = false
 
     private val recording = FeatureMachine()
+    private val analysis = FeatureMachine()
+    private var analysisDesired = false
     private val voice = FeatureMachine()
     private var journey = JourneyState()
 
@@ -98,6 +100,7 @@ object CopilotController {
                 copilotRunning = FloatingControlService.running.value,
                 buttonVisible = buttonVisible,
                 balloonHidden = balloonHidden,
+                analysis = FeatureUi(analysis.status, analysis.detail),
                 recording = FeatureUi(recording.status, recordingDetail ?: recording.detail),
                 recordingStartedAt = recordingStartedAt,
                 lastRecordingPath = lastRecordingPath,
@@ -136,6 +139,49 @@ object CopilotController {
 
     fun setMenuEntry(entry: MenuEntry, shown: Boolean) {
         menuEntries = if (shown) menuEntries + entry else menuEntries - entry
+        publish()
+    }
+
+    // ---- análise de corridas (leitor de ofertas) ----
+
+    /** O leitor só trabalha com a Análise LIGADA pelo usuário. */
+    fun analysisWanted(): Boolean = analysisDesired
+
+    /**
+     * Liga/desliga a Análise. Só vira Ativa quando o serviço de acessibilidade está realmente conectado;
+     * sem ele, fica "permissão necessária". Desligar invalida o balão de oferta atual.
+     */
+    fun setAnalysis(on: Boolean) {
+        if (!initialized) return
+        analysisDesired = on
+        if (!on) {
+            analysis.forceOff()
+            br.app.motorista.domain.offer.Platform.entries.forEach { BalloonHub.invalidate(it) }
+            publish()
+            return
+        }
+        recomputeAnalysis()
+    }
+
+    fun onReaderConnectionChanged() {
+        if (initialized) recomputeAnalysis()
+    }
+
+    private fun recomputeAnalysis() {
+        if (!analysisDesired) {
+            publish()
+            return
+        }
+        val connected = br.app.motorista.reader.ReaderState.connected.value
+        if (connected) {
+            if (analysis.status != FeatureStatus.Active) {
+                analysis.forceOff()
+                analysis.beginStart()
+                analysis.confirmActive()
+            }
+        } else {
+            analysis.fail(FeatureStatus.PermissionNeeded, "Ative o serviço de acessibilidade do No Ponto nas configurações do Android")
+        }
         publish()
     }
 

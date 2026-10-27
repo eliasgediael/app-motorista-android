@@ -63,6 +63,23 @@ data class FlaggedTerm(val id: String, val text: String, val kind: PlaceKind)
  * é usado só na hora: não é guardado. Um termo encontrado é um motivo para olhar com atenção, não prova de risco.
  */
 object PlaceMatcher {
+    /** Palavras iniciais do aviso de mercados. São editáveis pelo usuário e aparecem na tela; não são regra de risco. */
+    val DEFAULT_MARKET_WORDS = listOf("mercado", "supermercado", "hipermercado", "atacado", "atacadista", "feira", "hortifruti", "açougue")
+
+    fun parseWords(csv: String?): List<String> = (csv ?: DEFAULT_MARKET_WORDS.joinToString(", ")).split(',').map { it.trim() }.filter { it.isNotBlank() }
+
+    /** Aviso de mercados: procura as palavras no texto de embarque e destino. Só um motivo para olhar com atenção. */
+    fun marketMatches(pickupText: String, dropoffText: String, words: List<String>): List<String> = buildList {
+        val p = normalize(pickupText)
+        val d = normalize(dropoffText)
+        words.forEach { w ->
+            val n = normalize(w)
+            if (n.isBlank()) return@forEach
+            if (p.contains(n)) add("Embarque parece ser mercado (contém \"" + w + "\")")
+            if (d.contains(n)) add("Destino parece ser mercado (contém \"" + w + "\")")
+        }
+    }
+
     fun normalize(s: String): String =
         Normalizer.normalize(s.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "").trim()
 

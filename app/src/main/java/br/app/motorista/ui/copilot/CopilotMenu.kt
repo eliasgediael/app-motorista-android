@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -108,7 +109,7 @@ fun CopilotMenu(
                 pair.forEach { entry ->
                     Box2(Modifier.weight(1f)) {
                         when (entry) {
-                            MenuEntry.Analysis -> AnalysisCard(state.analysis)
+                            MenuEntry.Analysis -> AnalysisCard(state.analysis, actions)
                             MenuEntry.Recording -> RecordingCard(state, actions, tick)
                             MenuEntry.Voice -> VoiceCard(state.voice, actions)
                             MenuEntry.Journey -> JourneyCard(state, actions, tick)
@@ -131,6 +132,12 @@ fun CopilotMenu(
                 shape = RoundedCornerShape(14.dp),
             ) { Text("Abrir aplicativo", color = Ink) }
         }
+
+        val sample by br.app.motorista.reader.ReaderState.lastSample.collectAsState()
+        TextButton(onClick = { actions.captureSample() }, modifier = Modifier.fillMaxWidth()) {
+            Text("Capturar amostra da tela (diagnóstico)", color = Muted)
+        }
+        sample?.let { Text(it, color = Muted, style = MaterialTheme.typography.bodySmall) }
 
         if (!confirming) {
             TextButton(onClick = { confirming = true }, modifier = Modifier.fillMaxWidth()) {
@@ -190,12 +197,30 @@ private fun ActionButton(text: String, enabled: Boolean = true, danger: Boolean 
 }
 
 @Composable
-private fun AnalysisCard(f: FeatureUi) {
+private fun AnalysisCard(f: FeatureUi, actions: CopilotActions) {
     CardHeader(Icons.Outlined.Traffic, "Análise de corridas")
-    // Sem fonte real de ofertas, não existe serviço a ligar: nenhum switch é oferecido.
-    StatusLine("Serviço indisponível")
-    DisabledChip(if (f.status == FeatureStatus.NotImplemented) "Não implementado" else f.status.label)
-    if (f.detail != null) Text(f.detail, color = Muted, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
+    when (f.status) {
+        FeatureStatus.Off -> {
+            StatusLine("Desligada")
+            Switch(checked = false, onCheckedChange = { actions.setAnalysis(true) })
+        }
+        FeatureStatus.Active -> {
+            StatusLine("Ativa · lê o app mapeado")
+            Switch(checked = true, onCheckedChange = { actions.setAnalysis(false) })
+        }
+        FeatureStatus.PermissionNeeded -> {
+            StatusLine(f.detail ?: "Permissão necessária")
+            ActionButton("Permitir") { actions.openAccessibilitySettings() }
+        }
+        FeatureStatus.Starting, FeatureStatus.Stopping -> {
+            StatusLine(f.status.label)
+            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+        }
+        else -> {
+            StatusLine(f.detail ?: f.status.label, Danger)
+            ActionButton("Tentar de novo") { actions.setAnalysis(true) }
+        }
+    }
 }
 
 @Composable

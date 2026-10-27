@@ -159,7 +159,7 @@ fun FloatingControlScreen(
             Column {
                 MenuEntry.entries.forEachIndexed { index, entry ->
                     if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    val implemented = !(entry == MenuEntry.Analysis && state.analysis.status == FeatureStatus.NotImplemented)
+                    val implemented = true
                     ToggleRow(
                         title = entry.label,
                         subtitle = when (entry) {
