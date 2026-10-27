@@ -33,11 +33,18 @@ private val LightColors = lightColorScheme(
     outlineVariant = Color(0xFFDDE5E0),
 )
 
-// Variação escura (tela 50) ainda não refinada; apenas evita tema claro forçado.
+// Variação escura (tela 50): superfícies escuras, controles verdes; cores funcionais do balão não mudam.
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFF4CC98B),
+    primary = Color(0xFF3CC58D),
+    onPrimary = Color(0xFF06231A),
     primaryContainer = Color(0xFF16382A),
-    onPrimaryContainer = Color(0xFF4CC98B),
+    onPrimaryContainer = Color(0xFF7FE0B5),
+    background = Color(0xFF0F1512),
+    onBackground = Color(0xFFE6EEE9),
+    surface = Color(0xFF18201C),
+    onSurface = Color(0xFFE6EEE9),
+    onSurfaceVariant = Color(0xFFA8B5AE),
+    outlineVariant = Color(0xFF2C3833),
 )
 
 @Composable

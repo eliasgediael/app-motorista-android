@@ -61,8 +61,29 @@ object ScreenCatalog {
 
     fun find(id: String): Screen? = byId[id]
 
-    /** Telas com implementação própria; as demais mostram o marcador "ainda não implementada". */
+    /** Telas com implementação própria. As demais mostram "Ainda não implementada". */
     val implemented: Set<String> = setOf(
-        "painel", "criterios", "editar-criterio", "cartao", "balao-boa", "balao-atencao", "balao-ruim", "combinacao", "atalhos", "camera", "jornada", "menu-flutuante",
+        "painel", "criterios", "editar-criterio", "cartao", "balao-boa", "balao-atencao", "balao-ruim", "combinacao", "atalhos", "camera",
+        "jornada", "menu-flutuante", "financas", "lancamento", "categorias", "preferencias", "aparencia-escura", "permissoes", "conta",
+        "dispositivos", "backup", "privacidade", "ferramentas",
     )
+
+    /** Funções que dependem de decisão ou validação externa. Não bloqueiam as demais. */
+    private val blocked: Map<String, String> = mapOf(
+        "capturas" to "Captura de tela exige MediaProjection e decisão sobre termos das plataformas",
+    )
+
+    fun blockedReason(id: String): String? = blocked[id]
+
+    fun status(id: String): ScreenStatus = when {
+        id in blocked -> ScreenStatus.Blocked
+        id in implemented -> ScreenStatus.Ready
+        else -> ScreenStatus.InProgress
+    }
+}
+
+enum class ScreenStatus(val label: String) {
+    Ready("Pronta"),
+    Blocked("Bloqueada"),
+    InProgress("Em desenvolvimento"),
 }

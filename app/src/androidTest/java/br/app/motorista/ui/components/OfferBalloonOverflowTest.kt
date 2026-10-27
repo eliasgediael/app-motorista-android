@@ -74,7 +74,12 @@ class OfferBalloonOverflowTest {
             node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
             results.forEach { r ->
                 val text = r.layoutInput.text.text
-                if (r.hasVisualOverflow) out += "$label: transbordo em \"$text\""
+                // hasVisualOverflow marca tudo como verdadeiro nesta versão do Compose; medimos a geometria real:
+                // alguma linha mais larga que a caixa do texto, ou altura das linhas maior que a caixa, é corte.
+                val lastLine = r.lineCount - 1
+                val widest = (0 until r.lineCount).maxOf { r.getLineRight(it) }
+                if (widest > r.size.width + 1f) out += "$label: linha mais larga que a caixa em \"$text\" ($widest > ${r.size.width})"
+                if (r.getLineBottom(lastLine) > r.size.height + 1f) out += "$label: altura cortada em \"$text\""
                 if (!text.contains(' ') && r.lineCount != 1) out += "$label: \"$text\" em ${r.lineCount} linhas"
             }
             val b = node.boundsInRoot
@@ -106,7 +111,7 @@ class OfferBalloonOverflowTest {
                     for (system in listOf(1.0f, 1.3f, 2.0f))
                         for (width in listOf(320, 360, 411))
                             for (values in listOf(BalloonValues.Sample, longValues)) {
-                                current = Case(state, CardStyle(layout = layout, fontSize = font, enabledFields = all), values, system, width)
+                                current = Case(state, CardStyle(layout = layout, fontSize = font, enabledFields = all, secondaryFields = all), values, system, width)
                                 rule.waitForIdle()
                                 bad += problems("$state/$layout/${font.label}/sistema x$system/${width}dp", width, density)
                             }
@@ -120,7 +125,7 @@ class OfferBalloonOverflowTest {
         val bad = mutableListOf<String>()
         for (field in CardField.entries)
             for (system in listOf(1.0f, 2.0f)) {
-                current = Case(PreviewState.Bad, CardStyle(fontSize = CardFontSize.L, enabledFields = setOf(field)), longValues, system, 320)
+                current = Case(PreviewState.Bad, CardStyle(fontSize = CardFontSize.L, enabledFields = setOf(field), secondaryFields = setOf(field)), longValues, system, 320)
                 rule.waitForIdle()
                 bad += problems("campo $field/sistema x$system", 320, density)
             }

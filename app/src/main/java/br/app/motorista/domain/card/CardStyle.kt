@@ -48,7 +48,33 @@ data class CardStyle(
         CardField.RevenuePerHour,
         CardField.RevenuePerMinute,
     ),
+    /** Ordem de exibição dos campos (tela 48). Vale para os dois layouts. */
+    val fieldOrder: List<CardField> = CardField.entries,
+    /** Campos do cartão secundário compacto (tela 49), independentes dos do cartão completo. */
+    val secondaryFields: Set<CardField> = setOf(
+        CardField.RevenuePerKm,
+        CardField.RevenuePerHour,
+        CardField.RevenuePerMinute,
+    ),
 ) {
+    /** Campos exibidos no layout atual, na ordem escolhida. */
+    fun visibleFields(): List<CardField> {
+        val source = if (layout == CardLayout.Secondary) secondaryFields else enabledFields
+        return fieldOrder.filter { it in source }
+    }
+
+    fun moved(field: CardField, delta: Int): CardStyle {
+        val i = fieldOrder.indexOf(field)
+        val j = i + delta
+        if (i < 0 || j < 0 || j >= fieldOrder.size) return this
+        val list = fieldOrder.toMutableList()
+        list[i] = list[j].also { list[j] = list[i] }
+        return copy(fieldOrder = list)
+    }
+
+    fun secondaryToggled(field: CardField, on: Boolean): CardStyle =
+        copy(secondaryFields = if (on) secondaryFields + field else secondaryFields - field)
+
     fun toggled(field: CardField, on: Boolean): CardStyle =
         copy(enabledFields = if (on) enabledFields + field else enabledFields - field)
 }

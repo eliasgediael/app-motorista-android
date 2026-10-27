@@ -142,7 +142,7 @@ fun OfferBalloon(
 ) {
     BalloonFrame(seal, accent, style, modifier) { scale ->
         // Ordem fixa por enquanto; reordenação é a tela 48 (ainda não implementada).
-        val fields = CardField.entries.filter { it in style.enabledFields }
+        val fields = style.visibleFields()
         val info = fields.filter { it in INFO_FIELDS }
         val metrics = fields.filter { it !in INFO_FIELDS && it != CardField.EstimatedResult }
         val showResult = CardField.EstimatedResult in fields

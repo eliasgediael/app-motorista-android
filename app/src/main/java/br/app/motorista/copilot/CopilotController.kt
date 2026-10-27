@@ -324,6 +324,13 @@ object CopilotController {
         publish()
     }
 
+    /** Depois de apagar todos os dados: a jornada volta ao estado inicial. */
+    fun resetJourney() {
+        journey = JourneyState()
+        if (initialized) JourneyStore.save(app, journey)
+        publish()
+    }
+
     fun journeyStart() = journeyChange(JourneyClock.start(journey, System.currentTimeMillis()))
     fun journeyPause() = journeyChange(JourneyClock.pause(journey, System.currentTimeMillis()))
     fun journeyResume() = journeyChange(JourneyClock.resume(journey, System.currentTimeMillis()))

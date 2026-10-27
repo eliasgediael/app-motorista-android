@@ -73,6 +73,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)
+    // org.json real para testes na JVM (no aparelho vale o do Android).
+    testImplementation(libs.org.json)
     // Testes de layout do balão (Compose) rodam na JVM com Robolectric, sem emulador.
     testImplementation(libs.robolectric)
     testImplementation(platform(libs.androidx.compose.bom))

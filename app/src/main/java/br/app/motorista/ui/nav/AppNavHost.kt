@@ -15,6 +15,16 @@ import br.app.motorista.ui.balloon.BalloonPreviewScreen
 import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
 import br.app.motorista.ui.copilot.CopilotMenuScreen
+import br.app.motorista.ui.finance.CategoriesScreen
+import br.app.motorista.ui.finance.EntryFormScreen
+import br.app.motorista.ui.finance.FinanceScreen
+import br.app.motorista.ui.settings.AccountScreen
+import br.app.motorista.ui.settings.BackupScreen
+import br.app.motorista.ui.settings.DevicesScreen
+import br.app.motorista.ui.settings.PermissionsScreen
+import br.app.motorista.ui.settings.PreferencesScreen
+import br.app.motorista.ui.settings.PrivacyScreen
+import br.app.motorista.ui.settings.ToolsScreen
 import br.app.motorista.ui.criteria.CriteriaScreen
 import br.app.motorista.ui.journey.JourneyScreen
 import br.app.motorista.ui.recording.RecordingScreen
@@ -100,6 +110,22 @@ fun AppNavHost(
                     onBack = back,
                     onOpen = open,
                 )
+                "financas" -> FinanceScreen(back, open)
+                "lancamento" -> EntryFormScreen(back, open)
+                "categorias" -> CategoriesScreen(back, open)
+                "preferencias" -> PreferencesScreen(state.themeMode, preferences::setThemeMode, dark = false, onBack = back, onOpen = open)
+                "aparencia-escura" -> PreferencesScreen(state.themeMode, preferences::setThemeMode, dark = true, onBack = back, onOpen = open)
+                "permissoes" -> PermissionsScreen(back, open)
+                "conta" -> AccountScreen(back, open)
+                "dispositivos" -> DevicesScreen(back, open)
+                "privacidade" -> PrivacyScreen(onWipePrefs = preferences::wipePrefs, onBack = back, onOpen = open)
+                "backup" -> BackupScreen(
+                    prefsJson = preferences::exportPrefsJson,
+                    onRestorePrefs = preferences::importPrefsJson,
+                    onBack = back,
+                    onOpen = open,
+                )
+                "ferramentas" -> ToolsScreen(back, open)
                 "menu-flutuante" -> CopilotMenuScreen(onBack = back, onOpen = open)
                 "camera" -> RecordingScreen(onBack = back, onOpen = open)
                 "jornada" -> JourneyScreen(onBack = back, onOpen = open)
