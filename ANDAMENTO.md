@@ -10,7 +10,9 @@ Teste da apresentação local: 50 rotas com conteúdo, sem erros de JavaScript; 
 
 ## Versão 0.1.0 (teste) — estado em 27/10/2026
 
-Nenhum build, teste ou execução em aparelho foi feito ainda. Este computador não tem Android SDK/Gradle e o usuário não autorizou instalar. A compilação e os testes ocorrerão no GitHub Actions.
+Compilação e testes unitários rodaram no GitHub Actions (este computador não tem Android SDK/Gradle; não foi instalado). Nenhum teste em aparelho foi feito ainda.
+
+Repositório: https://github.com/eliasgediael/app-motorista-android (público). APK: https://github.com/eliasgediael/app-motorista-android/releases/tag/v0.1.0-build2 (`AppMotorista-v0.1.0-dd497e4.apk`, commit dd497e4, run 40584694787).
 
 ### 1. Código implementado (escrito, não compilado)
 
@@ -19,15 +21,15 @@ Nenhum build, teste ou execução em aparelho foi feito ainda. Este computador n
 - Extra de teste (fora das 50 telas): Simulador de oferta, com entrada manual.
 - Domínio sem Android: validação de critérios (`domain/criteria`), cálculo de R$/km, R$/h, R$/min com base explícita (`domain/calc`), avaliação por faixa e política de combinação (`domain/assessment`), estilo do cartão (`domain/card`).
 - Botão flutuante do próprio app (`floating/FloatingControlService`): botão arrastável, menu (balão verde/amarelo/vermelho de exemplo, ocultar, abrir app, desligar), balão em janela separada, sem toque.
-- CI: `.github/workflows/android.yml` (testes, APK release assinado com chave de teste estável, release com nome por versão e commit).
+- CI: `.github/workflows/android.yml` (testes, APK release assinado com chave de teste estável, pré-release com nome por versão e commit). Chave e senha em `Documents/AppMotorista-chave-teste/` (fora do repositório; só segredos do GitHub). Perder essa chave impede atualizar sobre o APK instalado.
 
 ### 2. Revisão estática realizada
 
 Leitura do código, conferência de chaves/parênteses e imports por script, conferência de nomes de rotas contra `telas.json`, cálculo manual dos exemplos dos testes. Isto NÃO substitui compilação: erros de tipo, API ou versão de dependência podem existir.
 
-### 3. Compilação e testes Android: NÃO executados
+### 3. Compilação e testes (GitHub Actions, run 40584694787)
 
-Testes escritos, não executados: `ScreenCatalogTest`, `CriterionValidatorTest`, `CardStyleTest`, `OfferCalculatorTest`, `OfferEvaluatorTest`. Nenhum teste instrumentado/UI. Versões (AGP 9.4.1, Kotlin 2.4.21, Compose BOM 2026.09.00, Navigation 2.10.2, Activity 1.13.0, Lifecycle 2.11.0, Gradle 9.8.2) vieram dos repositórios em 27/10/2026 e nunca foram validadas por build. compileSdk/targetSdk 36 e minSdk 26 são provisórios; Android mínimo não confirmado.
+Primeiro run falhou: dependências exigiam compileSdk 37 (corrigido; targetSdk segue 36). Segundo run: `:app:testDebugUnitTest` e `:app:assembleRelease` concluídos com sucesso; APK assinado com a chave de teste (certificado conferido). Testes unitários executados no CI: `ScreenCatalogTest`, `CriterionValidatorTest`, `CardStyleTest`, `OfferCalculatorTest`, `OfferEvaluatorTest`. Nenhum teste instrumentado/UI e nenhuma execução em aparelho real. Versões resolvidas e compiladas no CI: AGP 9.4.1, Kotlin 2.4.21, Compose BOM 2026.09.00, Navigation 2.10.2, Activity 1.13.0, Lifecycle 2.11.0, Gradle 9.8.2. compileSdk 37, targetSdk 36 e minSdk 26 são provisórios; Android mínimo não confirmado.
 
 ### Políticas e valores pendentes (nada foi inventado)
 
