@@ -9,7 +9,7 @@ val gitSha: String = System.getenv("GITHUB_SHA")?.take(7) ?: "local"
 
 android {
     namespace = "br.app.motorista"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "br.app.motorista"
