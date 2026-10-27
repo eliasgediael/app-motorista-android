@@ -72,7 +72,7 @@ Leitura de ofertas de outro app exige serviço de acessibilidade. A Política de
 
 - Testes unitários na JVM (CI): cálculo com bases, avaliação por faixa e política, validação de critérios, plataformas sem mistura e validade de oferta, máquina de estados dos recursos, jornada, geometria do botão/menu, posição segura, finanças, contas, reserva, metas, custo por km, manutenção, histórico, relatórios, recibo, mensagem, alertas, locais, voz, persistência (repositório JSON e preferências), ordem de campos.
 - Testes Compose na JVM (Robolectric): comportamento do balão (selo, motivo, campos). Robolectric NÃO mede texto de verdade.
-- Teste de transbordo/corte de fonte em EMULADOR (job `ui-tests`): vem encontrando problemas reais de layout do balão; correções em andamento. Esse job pode estar falhando; o APK é publicado pelo job `build`.
+- Teste de transbordo/corte de fonte em EMULADOR Android 34 (job `ui-tests`): PASSA para todas as combinações de campos, layouts, fonte do app, fonte do sistema 1,0/1,3/2,0 e larguras 320/360/411 dp. Ele achou e levou à correção de bugs reais (etiqueta espremendo o texto, números quebrando em duas linhas). É emulador, NÃO o seu aparelho.
 - Revisão estática por leitura. Nada disso substitui teste no aparelho.
 
 ## Limitações gerais
