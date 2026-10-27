@@ -1,0 +1,5 @@
+<resources>
+    <!-- Nome provisório: marca própria ainda pendente. -->
+    <string name="app_name">App Motorista</string>
+    <string name="floating_button_label">Painel</string>
+</resources>

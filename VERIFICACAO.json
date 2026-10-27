@@ -1,0 +1,212 @@
+{
+  "routes": [
+    {
+      "id": "painel",
+      "hasContent": true
+    },
+    {
+      "id": "analise",
+      "hasContent": true
+    },
+    {
+      "id": "criterios",
+      "hasContent": true
+    },
+    {
+      "id": "perfis",
+      "hasContent": true
+    },
+    {
+      "id": "plataformas",
+      "hasContent": true
+    },
+    {
+      "id": "cartao",
+      "hasContent": true
+    },
+    {
+      "id": "sobreposicao",
+      "hasContent": true
+    },
+    {
+      "id": "atalhos",
+      "hasContent": true
+    },
+    {
+      "id": "jornada",
+      "hasContent": true
+    },
+    {
+      "id": "relatorios",
+      "hasContent": true
+    },
+    {
+      "id": "historico",
+      "hasContent": true
+    },
+    {
+      "id": "detalhe",
+      "hasContent": true
+    },
+    {
+      "id": "horarios",
+      "hasContent": true
+    },
+    {
+      "id": "financas",
+      "hasContent": true
+    },
+    {
+      "id": "lancamento",
+      "hasContent": true
+    },
+    {
+      "id": "fechamento",
+      "hasContent": true
+    },
+    {
+      "id": "metas",
+      "hasContent": true
+    },
+    {
+      "id": "contas",
+      "hasContent": true
+    },
+    {
+      "id": "reserva",
+      "hasContent": true
+    },
+    {
+      "id": "categorias",
+      "hasContent": true
+    },
+    {
+      "id": "custo",
+      "hasContent": true
+    },
+    {
+      "id": "veiculos",
+      "hasContent": true
+    },
+    {
+      "id": "manutencao",
+      "hasContent": true
+    },
+    {
+      "id": "particular",
+      "hasContent": true
+    },
+    {
+      "id": "recibo",
+      "hasContent": true
+    },
+    {
+      "id": "mensagem",
+      "hasContent": true
+    },
+    {
+      "id": "alertas",
+      "hasContent": true
+    },
+    {
+      "id": "locais",
+      "hasContent": true
+    },
+    {
+      "id": "voz",
+      "hasContent": true
+    },
+    {
+      "id": "navegacao",
+      "hasContent": true
+    },
+    {
+      "id": "capturas",
+      "hasContent": true
+    },
+    {
+      "id": "camera",
+      "hasContent": true
+    },
+    {
+      "id": "gravacoes",
+      "hasContent": true
+    },
+    {
+      "id": "permissoes",
+      "hasContent": true
+    },
+    {
+      "id": "preferencias",
+      "hasContent": true
+    },
+    {
+      "id": "conta",
+      "hasContent": true
+    },
+    {
+      "id": "dispositivos",
+      "hasContent": true
+    },
+    {
+      "id": "backup",
+      "hasContent": true
+    },
+    {
+      "id": "privacidade",
+      "hasContent": true
+    },
+    {
+      "id": "ajuda",
+      "hasContent": true
+    },
+    {
+      "id": "ferramentas",
+      "hasContent": true
+    },
+    {
+      "id": "balao-boa",
+      "hasContent": true
+    },
+    {
+      "id": "balao-atencao",
+      "hasContent": true
+    },
+    {
+      "id": "balao-ruim",
+      "hasContent": true
+    },
+    {
+      "id": "menu-flutuante",
+      "hasContent": true
+    },
+    {
+      "id": "editar-criterio",
+      "hasContent": true
+    },
+    {
+      "id": "combinacao",
+      "hasContent": true
+    },
+    {
+      "id": "ordem-campos",
+      "hasContent": true
+    },
+    {
+      "id": "cartao-secundario",
+      "hasContent": true
+    },
+    {
+      "id": "aparencia-escura",
+      "hasContent": true
+    }
+  ],
+  "renderErrors": [],
+  "exportErrors": [],
+  "checks": {
+    "redBalloon": "RECUSAR",
+    "menuNavigation": true,
+    "combinationNavigation": true
+  },
+  "nativeAndroidTests": false
+}

@@ -1,0 +1,883 @@
+{
+  "created": "2026-10-27",
+  "pages": 50,
+  "referenceImages": 50,
+  "isolatedBalloons": 3,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 1717,
+      "sha256": "8d97b8798791f59010d386ebfa5bd85d2ed5bd097cf896932586be23e8037326"
+    },
+    {
+      "path": "ANDAMENTO.md",
+      "bytes": 888,
+      "sha256": "730a6b858231eef54e73327c5bef5da9391fc4e24a1820313f6d4a4df1ff1320"
+    },
+    {
+      "path": "App-Motorista-Android.code-workspace",
+      "bytes": 71,
+      "sha256": "ccba6084f7d358937e612ef3b445fe5ffff19a63ac9044af60a6039075a3848b"
+    },
+    {
+      "path": "COMECE-AQUI.md",
+      "bytes": 2361,
+      "sha256": "00a4ebc5d7347fea230d29903fc2fcf0d0cbe445e5ebc86ec77d0359e8031ae8"
+    },
+    {
+      "path": "design/interface-referencia-colorida.png",
+      "bytes": 1486659,
+      "sha256": "5a46fd6c89ec649e1c5df5c8aa722302b70c0c78b95fc34bf03030d2cad20933"
+    },
+    {
+      "path": "design/preview-navegavel.png",
+      "bytes": 112907,
+      "sha256": "63302e4efd0ece9fa42432d5b46381ae723255d2f6872b3d9c65cea180e39510"
+    },
+    {
+      "path": "design/prompt-imagem.txt",
+      "bytes": 4684,
+      "sha256": "1c406a805587e21b8e0e746dbff9accf28f9b4a0cc931f567c5b7fe8c9444c9a"
+    },
+    {
+      "path": "DIRECAO-VISUAL.md",
+      "bytes": 821,
+      "sha256": "ad5490ff975d64c443009f8f195bca3cacfb814c7a49bfed0c207710688dbb85"
+    },
+    {
+      "path": "ESPECIFICACAO-COMPLETA.md",
+      "bytes": 16079,
+      "sha256": "f86078dec21e778b2ba9fbf1f89ace6d509bffbac3ce19282865a84e98be2bbe"
+    },
+    {
+      "path": "index.html",
+      "bytes": 2046,
+      "sha256": "8825e9182787111e35fe2fbff72a20e651d49c4c8719dd997da8ab4fa99e1901"
+    },
+    {
+      "path": "INDICE-TELAS.md",
+      "bytes": 8319,
+      "sha256": "86abe835d3be93c7e3ff147b4693098277725ba43dc2822cd08026764ca9fe83"
+    },
+    {
+      "path": "interface.css",
+      "bytes": 19251,
+      "sha256": "dc341bf1089761dda285cb44536bd31f0d6065d036d5b2331fbad591feb054bf"
+    },
+    {
+      "path": "interface.js",
+      "bytes": 41075,
+      "sha256": "3363018152dbd2831032fef1b8b54aedff7d8d1b8ba43f78a1b3603af498fff9"
+    },
+    {
+      "path": "README.md",
+      "bytes": 431,
+      "sha256": "1bf6d7f23e76347944d6f02b19b2b55435ae8005dd1bf6e535f75f88b2f687cd"
+    },
+    {
+      "path": "referencias/analise-video.md",
+      "bytes": 4319,
+      "sha256": "1b3abb41f34b9ce7456478ba1ff40cf1218f6415e6609a0b10eb0f3b8191e847"
+    },
+    {
+      "path": "referencias/arquitetura.md",
+      "bytes": 3396,
+      "sha256": "ef5c75543f3c5c051792292f1f89ba65af730ea92a9eb307e135b2f67c957365"
+    },
+    {
+      "path": "referencias/audio.md",
+      "bytes": 2867,
+      "sha256": "64b480d2b10adeea221b0411beff5d61b23144f21b2305ee6c610c8a7f3b27e6"
+    },
+    {
+      "path": "referencias/sobreposicao-estudo.md",
+      "bytes": 3502,
+      "sha256": "ff5eb7f6bf012d9460cd89f49cc1f4c1e87f701640e57926f94be81544535897"
+    },
+    {
+      "path": "referencias/validacoes-apex.md",
+      "bytes": 2369,
+      "sha256": "278358adcaf67e1262103cb7fc2ad34531d0b655831f6a49ee6c7f5f25bfe639"
+    },
+    {
+      "path": "telas/01-painel/COMANDO-VSCODE.md",
+      "bytes": 1262,
+      "sha256": "bb645b9250f57b027c93190393d53a8710f0774a71d7db1beec2c06c498f2a07"
+    },
+    {
+      "path": "telas/01-painel/FUNCAO.md",
+      "bytes": 2212,
+      "sha256": "e5463eb4e8e9e564e4daa9c72608440e4f0027d25c64acd45d4d67a6a4e8694b"
+    },
+    {
+      "path": "telas/01-painel/referencia.png",
+      "bytes": 107207,
+      "sha256": "5fbca442d366439648d4225476f34b6adb871960830c2c8227e87fa2da105f03"
+    },
+    {
+      "path": "telas/02-analise/COMANDO-VSCODE.md",
+      "bytes": 1288,
+      "sha256": "bb7c954ec77c91bc9d6f95a953e181735235528b6db25d14d72cb6aa6d13e967"
+    },
+    {
+      "path": "telas/02-analise/FUNCAO.md",
+      "bytes": 1796,
+      "sha256": "061244dec30e36ce37502f7a11e5b4f0bad894572bcb504c6d55ef4493ef03c4"
+    },
+    {
+      "path": "telas/02-analise/referencia.png",
+      "bytes": 111609,
+      "sha256": "58309b6c8611f0fe1a137d7644ba7a0cee5140ac765c9bc31fabbcab0dc140b9"
+    },
+    {
+      "path": "telas/03-criterios/COMANDO-VSCODE.md",
+      "bytes": 1304,
+      "sha256": "3e4db3c2f8a3dd4cc278ed5bdedbcbdfc7ff25c362fb79e23d85b485ca93f7ba"
+    },
+    {
+      "path": "telas/03-criterios/FUNCAO.md",
+      "bytes": 2787,
+      "sha256": "a08100529851f2c2f48d83806b4b387b36557bf68e5d045ddc3711d565fa005a"
+    },
+    {
+      "path": "telas/03-criterios/referencia.png",
+      "bytes": 157931,
+      "sha256": "1b9849d6b601a17be5b325f1a81116c8e3420a6298cbe4874ff6ffb296f6aa2d"
+    },
+    {
+      "path": "telas/04-perfis/COMANDO-VSCODE.md",
+      "bytes": 1282,
+      "sha256": "06335634447ac2dfe89746f989d7f3a6ce485989da52a412ec30a70bc97415cb"
+    },
+    {
+      "path": "telas/04-perfis/FUNCAO.md",
+      "bytes": 1872,
+      "sha256": "567dcaaf2bf127bf3a80e4fb709e7499b311e953d3361459c1706a35ecca50b4"
+    },
+    {
+      "path": "telas/04-perfis/referencia.png",
+      "bytes": 91477,
+      "sha256": "ea4ce51265cf27e839615f461fdb2922e20a17b8680d6189dd13b27d343133b9"
+    },
+    {
+      "path": "telas/05-plataformas/COMANDO-VSCODE.md",
+      "bytes": 1296,
+      "sha256": "96fe2c75b348484595ea8f7138cb1039d549649ff2178cebdea33319959ab569"
+    },
+    {
+      "path": "telas/05-plataformas/FUNCAO.md",
+      "bytes": 1772,
+      "sha256": "1f9dbe10b5774840bcfe8192368729eaa99ddad72e73402d667f5351f2541d0b"
+    },
+    {
+      "path": "telas/05-plataformas/referencia.png",
+      "bytes": 69411,
+      "sha256": "1fd58ae7e85621a68ae25a9e23b4df700c0c1115c59737b2c745239133877e1e"
+    },
+    {
+      "path": "telas/06-cartao/COMANDO-VSCODE.md",
+      "bytes": 1284,
+      "sha256": "c4056c8e2dde9ff653463c2c7acecbcf457ba0aad088ae565a851d55c4a62683"
+    },
+    {
+      "path": "telas/06-cartao/FUNCAO.md",
+      "bytes": 2531,
+      "sha256": "f3aa4fbaed2dc3643b9d07533a4ae2273b0f224091188885e76d22e617cdd56e"
+    },
+    {
+      "path": "telas/06-cartao/referencia.png",
+      "bytes": 175794,
+      "sha256": "54a89efcf5e6ca430edb62396f2e23110f61ad5cbdaf697c48141c4c133c4dd5"
+    },
+    {
+      "path": "telas/07-sobreposicao/COMANDO-VSCODE.md",
+      "bytes": 1300,
+      "sha256": "7f7717c69e39a07eeae34f863171f5b564115f3ebe1c52ca7488b8f6c9a9facc"
+    },
+    {
+      "path": "telas/07-sobreposicao/FUNCAO.md",
+      "bytes": 2064,
+      "sha256": "a009b582a20acf2e18130fdb5bc0bdbccdea46170db5d69587542f16719d25cb"
+    },
+    {
+      "path": "telas/07-sobreposicao/referencia.png",
+      "bytes": 127130,
+      "sha256": "9dbddca4da5d383cf5abcee23cf9ca81a351ee6dce1253fbabb9eab37f8c85c2"
+    },
+    {
+      "path": "telas/08-atalhos/COMANDO-VSCODE.md",
+      "bytes": 1290,
+      "sha256": "66e45034e9c4b4293d509cda9c58613d1618fad1c6f2441338e6f4b983799de7"
+    },
+    {
+      "path": "telas/08-atalhos/FUNCAO.md",
+      "bytes": 2314,
+      "sha256": "7906de30fee30f9ac6434b7ab4ed343fe5554ec2561cbd00a83997746b0cd9dc"
+    },
+    {
+      "path": "telas/08-atalhos/referencia.png",
+      "bytes": 111625,
+      "sha256": "1796bb39a189a5d71ffded3971738d05c19d7d88676c4f04d09a0415bda68243"
+    },
+    {
+      "path": "telas/09-jornada/COMANDO-VSCODE.md",
+      "bytes": 1269,
+      "sha256": "4e3de1be030a53d7458350a37b51fb717c188e1f5da52fb49d0f318b863162b1"
+    },
+    {
+      "path": "telas/09-jornada/FUNCAO.md",
+      "bytes": 2059,
+      "sha256": "c21b840433455ea5bc85cdf068236e9c5e7eb76a21f440cf2e82ed1ec97143ec"
+    },
+    {
+      "path": "telas/09-jornada/referencia.png",
+      "bytes": 105193,
+      "sha256": "e6656ce07aabd7d7f2563bc0ef5341936abf53ea90a388472559219627487e2b"
+    },
+    {
+      "path": "telas/10-relatorios/COMANDO-VSCODE.md",
+      "bytes": 1304,
+      "sha256": "32a4d4c623ed9cb1ca0b7deab6b661362afe7acbc453442d8753306333119908"
+    },
+    {
+      "path": "telas/10-relatorios/FUNCAO.md",
+      "bytes": 1984,
+      "sha256": "487955817e893c0aee7346d9acdcb8198bf66680683512905692ee46ef353692"
+    },
+    {
+      "path": "telas/10-relatorios/referencia.png",
+      "bytes": 96473,
+      "sha256": "58843b1e2fb082f3d7c4d6958e23d7ef4882eb116ead973eddd0ea526d0c11f3"
+    },
+    {
+      "path": "telas/11-historico/COMANDO-VSCODE.md",
+      "bytes": 1295,
+      "sha256": "3c02852b69b46d05c86b41c4284565430fec1e3c11e2433e094e71b6c3cd42c3"
+    },
+    {
+      "path": "telas/11-historico/FUNCAO.md",
+      "bytes": 2307,
+      "sha256": "4589d249dd9dea02437c5323f60f6d5dc784d5f34b1198ca896e6b3a6466d4ee"
+    },
+    {
+      "path": "telas/11-historico/referencia.png",
+      "bytes": 110139,
+      "sha256": "8ca3d3def7820822ec8809a7fce5eaf8ceda3379b9af24a58bb25cd12487299b"
+    },
+    {
+      "path": "telas/12-detalhe/COMANDO-VSCODE.md",
+      "bytes": 1291,
+      "sha256": "6b1e8ad8cbbad2d712034f285e98aafc0deb7f00667197df0d01a0b2b3f7db64"
+    },
+    {
+      "path": "telas/12-detalhe/FUNCAO.md",
+      "bytes": 1654,
+      "sha256": "9f241185240e9d9540f7472b56739b92dc91f00b150a13c80341b59d9ad4da37"
+    },
+    {
+      "path": "telas/12-detalhe/referencia.png",
+      "bytes": 112046,
+      "sha256": "0f419af911a97150c285d0563dcf66978e10f39257b4cc18bd10243b0792a9a1"
+    },
+    {
+      "path": "telas/13-horarios/COMANDO-VSCODE.md",
+      "bytes": 1301,
+      "sha256": "2d8a6165839690276b78b5ee82ea7c9feb8ff3ffd40351e3b64e80623a70631f"
+    },
+    {
+      "path": "telas/13-horarios/FUNCAO.md",
+      "bytes": 2346,
+      "sha256": "9229192f5f8bf25cf1dac1974b5aa54f0d6d804a0b0fbfb1594e410b31800c27"
+    },
+    {
+      "path": "telas/13-horarios/referencia.png",
+      "bytes": 70287,
+      "sha256": "b340db81edf0234c42b248c9bd253fe7e096f204c44931b066187b85bfe2bf21"
+    },
+    {
+      "path": "telas/14-financas/COMANDO-VSCODE.md",
+      "bytes": 1288,
+      "sha256": "b3b4917e064bc8ac1c422270631a5f6a5cd96b97cace92c1886a5e8f13f3b089"
+    },
+    {
+      "path": "telas/14-financas/FUNCAO.md",
+      "bytes": 2246,
+      "sha256": "4ef21857fce7fe71daff14e7edf974635be1a4ccf166461a5db50e271e7a96d0"
+    },
+    {
+      "path": "telas/14-financas/referencia.png",
+      "bytes": 116344,
+      "sha256": "5e69c8ccbdf7b1ef15f58de9070dd0f4d69de7b85a6e99dab150780d6c8a3a98"
+    },
+    {
+      "path": "telas/15-lancamento/COMANDO-VSCODE.md",
+      "bytes": 1287,
+      "sha256": "563aa5574ce6044d275e2f2dfe1661e62141d1e621b9b97e15842737559180e1"
+    },
+    {
+      "path": "telas/15-lancamento/FUNCAO.md",
+      "bytes": 1710,
+      "sha256": "1f7cab103a9ef6e4c6ef2d1660162ce5bcc29f817950229d7f5977dc26c5adae"
+    },
+    {
+      "path": "telas/15-lancamento/referencia.png",
+      "bytes": 84900,
+      "sha256": "ccb856bb973120ba5a83f668e4b629c782ecb5d1b37afb6289ff2506cc5da74a"
+    },
+    {
+      "path": "telas/16-fechamento/COMANDO-VSCODE.md",
+      "bytes": 1283,
+      "sha256": "f146ab8a2a8579816eb24901450d12bf09807c4d72d19cb7e5e87d72ef90a807"
+    },
+    {
+      "path": "telas/16-fechamento/FUNCAO.md",
+      "bytes": 1695,
+      "sha256": "bd83e2a809a823a97c3040a7ae0cf837400b3039e5a32416fdbcb26d5749f373"
+    },
+    {
+      "path": "telas/16-fechamento/referencia.png",
+      "bytes": 77985,
+      "sha256": "18f9d99f6d32b55675de0501a1c5dd8155af1d7cdb8eb702d5cd7278ef67d16b"
+    },
+    {
+      "path": "telas/17-metas/COMANDO-VSCODE.md",
+      "bytes": 1289,
+      "sha256": "773640b1ae83036c232a0ff6bc439348aa2610465fcefdcda1a84abe5fc34420"
+    },
+    {
+      "path": "telas/17-metas/FUNCAO.md",
+      "bytes": 1688,
+      "sha256": "e2d41fb45b36deec418a91cb9e01b3ee397e74935b5ab7511392a024af852e5a"
+    },
+    {
+      "path": "telas/17-metas/referencia.png",
+      "bytes": 72845,
+      "sha256": "bdc21e5725088c9c28bd671955178fad7bbcd62e28fe1b66b70d97737d30eaa9"
+    },
+    {
+      "path": "telas/18-contas/COMANDO-VSCODE.md",
+      "bytes": 1277,
+      "sha256": "825e2c0e58e2151b9faf4908e99dffd6112cbf114a5dbeed09257b1b6b4c26c4"
+    },
+    {
+      "path": "telas/18-contas/FUNCAO.md",
+      "bytes": 1647,
+      "sha256": "64c0c64bed039d1b512950812bfc2f81edfa6526863195f9bd9c5636277b7db2"
+    },
+    {
+      "path": "telas/18-contas/referencia.png",
+      "bytes": 71242,
+      "sha256": "8cf349f160208e7384f641861de244128068a2bf79e333fd046d980b0100001b"
+    },
+    {
+      "path": "telas/19-reserva/COMANDO-VSCODE.md",
+      "bytes": 1303,
+      "sha256": "d781241d9e6c4ea06192c4911b420f4e51170bbb33fa1653301d6cc8d91a0dc4"
+    },
+    {
+      "path": "telas/19-reserva/FUNCAO.md",
+      "bytes": 1923,
+      "sha256": "3494933ce832de0558c027254586b3e6cd19a3979787523894dbabecb0b5ea52"
+    },
+    {
+      "path": "telas/19-reserva/referencia.png",
+      "bytes": 71111,
+      "sha256": "4f0c7eb94e12316a231be7105c16d415f539d632472c4677dae80ec111c2b30b"
+    },
+    {
+      "path": "telas/20-categorias/COMANDO-VSCODE.md",
+      "bytes": 1315,
+      "sha256": "c40026895312ed73bef1987adde8815d8f899d3606f622ccfd2a630a063ae447"
+    },
+    {
+      "path": "telas/20-categorias/FUNCAO.md",
+      "bytes": 1700,
+      "sha256": "705c7e32557c8d8f5555c03146f187079d6fc67463527121d3115266ec1dbb1e"
+    },
+    {
+      "path": "telas/20-categorias/referencia.png",
+      "bytes": 74409,
+      "sha256": "dde82c967dfca17615316f917c963ac4208deb635608cf17c6135413570c8c74"
+    },
+    {
+      "path": "telas/21-custo/COMANDO-VSCODE.md",
+      "bytes": 1289,
+      "sha256": "39d6eae1ad6031be40da87272f19bf249e8bdad0e47610be94dea0192a801242"
+    },
+    {
+      "path": "telas/21-custo/FUNCAO.md",
+      "bytes": 2295,
+      "sha256": "e3c67bd167ef711b953372c0954867d15da277b46a0d314f4c0917cd91a2028f"
+    },
+    {
+      "path": "telas/21-custo/referencia.png",
+      "bytes": 102365,
+      "sha256": "3e263547ae9dd03e8cc2fa0f3a2afce455abf0b3bc5684700f3e012fea4e004f"
+    },
+    {
+      "path": "telas/22-veiculos/COMANDO-VSCODE.md",
+      "bytes": 1294,
+      "sha256": "49c514ba7b5903214cf229d10d28b71d1e71afcbc7136ea1012dd4fe69a95706"
+    },
+    {
+      "path": "telas/22-veiculos/FUNCAO.md",
+      "bytes": 1750,
+      "sha256": "8d1b2ee6869256652b56cd94c70a5c8ad5663c6603176065c594b5b2399467e2"
+    },
+    {
+      "path": "telas/22-veiculos/referencia.png",
+      "bytes": 81657,
+      "sha256": "db5bc5fc1bd1f609fcc956620f7f873179040d55a7f38b1c1fa7058bd656b8ca"
+    },
+    {
+      "path": "telas/23-manutencao/COMANDO-VSCODE.md",
+      "bytes": 1303,
+      "sha256": "67b0debae4ff7c6542246cf2280c052cb0d2d333569ac1e18f752b44d5c076fe"
+    },
+    {
+      "path": "telas/23-manutencao/FUNCAO.md",
+      "bytes": 1716,
+      "sha256": "6986ffd21c2d9a7ec29d5e2f30e94bb215049df83a30ea509282d855d6d9d52f"
+    },
+    {
+      "path": "telas/23-manutencao/referencia.png",
+      "bytes": 76742,
+      "sha256": "6b54b892a1aeead74107d1f9aadac1ef581f5d097734a9e1eb7bd9f01050154b"
+    },
+    {
+      "path": "telas/24-particular/COMANDO-VSCODE.md",
+      "bytes": 1282,
+      "sha256": "87263d9af5e5ea302f47de53a658e462c811c4186b1fc77bcd7375313a0cf76a"
+    },
+    {
+      "path": "telas/24-particular/FUNCAO.md",
+      "bytes": 2005,
+      "sha256": "9042ab463d999e44e7e1604fc0fb3cb42ba2f7a1502aaac654a3abd2090da8f8"
+    },
+    {
+      "path": "telas/24-particular/referencia.png",
+      "bytes": 87428,
+      "sha256": "831a0648931d885f3aaec1a93b3ec07d6612ae863a2c28eb0fad0b10daff2ce6"
+    },
+    {
+      "path": "telas/25-recibo/COMANDO-VSCODE.md",
+      "bytes": 1292,
+      "sha256": "cd7784124e98178055da76675d46d299e24ff6e94c4328a84a6625c9262a3ef7"
+    },
+    {
+      "path": "telas/25-recibo/FUNCAO.md",
+      "bytes": 1652,
+      "sha256": "70e110fc18f46850aa07dde15213591f0e1ca96b811611f64bd41a0b266dfdb0"
+    },
+    {
+      "path": "telas/25-recibo/referencia.png",
+      "bytes": 70625,
+      "sha256": "8da73f0fda1f39b39bac241ecf36625e967d2ae2f32e3525f2f9181aaf6a6d2c"
+    },
+    {
+      "path": "telas/26-mensagem/COMANDO-VSCODE.md",
+      "bytes": 1296,
+      "sha256": "3f02b51f09d364921dad64797aab6a7a3df6a276a176ba9173575c630db33773"
+    },
+    {
+      "path": "telas/26-mensagem/FUNCAO.md",
+      "bytes": 2028,
+      "sha256": "c0e73b70770cc127f598cd80453b7e0ab5036c2327170b2f61b34a901ca6585f"
+    },
+    {
+      "path": "telas/26-mensagem/referencia.png",
+      "bytes": 88943,
+      "sha256": "8b3633b3c4477efdddb4b8266d2c7205ca655d9e4418d8a28efb62f44c9efb87"
+    },
+    {
+      "path": "telas/27-alertas/COMANDO-VSCODE.md",
+      "bytes": 1302,
+      "sha256": "05c9b0b6b04b934f9c638cbe8297f945354399754a73cd119a65362bf1fb78f0"
+    },
+    {
+      "path": "telas/27-alertas/FUNCAO.md",
+      "bytes": 1908,
+      "sha256": "2fd1c69fb376fbe24c45b1fbe1078b895e5a2a9c9a8a8d7928097fa8a53e8817"
+    },
+    {
+      "path": "telas/27-alertas/referencia.png",
+      "bytes": 113351,
+      "sha256": "0db4b0c4ba6619022f98c0654b19d8c9277e9251161e44debc9b1ba119fc4ffd"
+    },
+    {
+      "path": "telas/28-locais/COMANDO-VSCODE.md",
+      "bytes": 1287,
+      "sha256": "bda3abb6f6e7936c7ea31c583a32f8abe83e4d7f81a25325e467c8ce8cb6cca3"
+    },
+    {
+      "path": "telas/28-locais/FUNCAO.md",
+      "bytes": 1900,
+      "sha256": "80f8491f9c4efbc104303337134c718d5271f1ace86e761a6d7f27df850c7883"
+    },
+    {
+      "path": "telas/28-locais/referencia.png",
+      "bytes": 90662,
+      "sha256": "07b88f5292a5984493929a5f3a2afd8cf20c1b55e4b6d647c417cccd0f178df1"
+    },
+    {
+      "path": "telas/29-voz/COMANDO-VSCODE.md",
+      "bytes": 1286,
+      "sha256": "4db409b07476bad1fdb3df86d935d5ced4114051e40cf6c90e6ec515b50a787a"
+    },
+    {
+      "path": "telas/29-voz/FUNCAO.md",
+      "bytes": 2080,
+      "sha256": "ad87b27d155d536e1b5fa14a893caf58d54c229cfcd6c4c44f4fb06a97dcbe5a"
+    },
+    {
+      "path": "telas/29-voz/referencia.png",
+      "bytes": 110923,
+      "sha256": "7209e322f9202dbbf66cbfcca0056eba4b6cd9affa4382808270013a10143503"
+    },
+    {
+      "path": "telas/30-navegacao/COMANDO-VSCODE.md",
+      "bytes": 1298,
+      "sha256": "2daacbc923330463820a3cbe89ea13e383630e09d4494e3fd6b614b7545bad3d"
+    },
+    {
+      "path": "telas/30-navegacao/FUNCAO.md",
+      "bytes": 1825,
+      "sha256": "27e96543cd8a24d1025f2a4c58f248e1ce6da251fb9743f444bcc7f0e5917a6c"
+    },
+    {
+      "path": "telas/30-navegacao/referencia.png",
+      "bytes": 73561,
+      "sha256": "2baf340b4b735ff65b6f189e31a604551deddf3c91d8a4d7c24e2443d77ae115"
+    },
+    {
+      "path": "telas/31-capturas/COMANDO-VSCODE.md",
+      "bytes": 1309,
+      "sha256": "dab59d418c7edd31d1d670885254296f3f1dfaf868721d5a8b6f9e82235f6cd8"
+    },
+    {
+      "path": "telas/31-capturas/FUNCAO.md",
+      "bytes": 1826,
+      "sha256": "d1d8e54287b1b7c52cddc647e91da99dc75ca95948a820f7089e85a8c93059b6"
+    },
+    {
+      "path": "telas/31-capturas/referencia.png",
+      "bytes": 85182,
+      "sha256": "b50030da01ae52443e4d131595977ef96332c2a83cc65156a7c48ab2c2a2108b"
+    },
+    {
+      "path": "telas/32-camera/COMANDO-VSCODE.md",
+      "bytes": 1311,
+      "sha256": "39d0fdbd8151d3b042180d68cd3dda49903759abe6df02101c3f54826befd8e5"
+    },
+    {
+      "path": "telas/32-camera/FUNCAO.md",
+      "bytes": 2214,
+      "sha256": "df393e7d388a647e0fc074ace7cf97a88127eb8a0b612d18a1419ea3778d11ee"
+    },
+    {
+      "path": "telas/32-camera/referencia.png",
+      "bytes": 105946,
+      "sha256": "ec0f2858abb7210db969868ba3ee368a39f8d01199306806374cfffdeec1d9a7"
+    },
+    {
+      "path": "telas/33-gravacoes/COMANDO-VSCODE.md",
+      "bytes": 1305,
+      "sha256": "919178fa7df42ed480902eb1cc9f3bb4b203ce34107a672ea31ac78d30f86603"
+    },
+    {
+      "path": "telas/33-gravacoes/FUNCAO.md",
+      "bytes": 1658,
+      "sha256": "5f3de7483f3483eefa8c6623d014c78ced08e7a5f5e8e891332424f08a02bfde"
+    },
+    {
+      "path": "telas/33-gravacoes/referencia.png",
+      "bytes": 61818,
+      "sha256": "29ede6334b8b67a7915d432154912eed4dec6869dee02cb61e1a7b0d7572ebc0"
+    },
+    {
+      "path": "telas/34-permissoes/COMANDO-VSCODE.md",
+      "bytes": 1292,
+      "sha256": "1aaf895399d8b55a47c9264f4087dc58abe45d7afaa2276a998dd784b7e4c526"
+    },
+    {
+      "path": "telas/34-permissoes/FUNCAO.md",
+      "bytes": 1625,
+      "sha256": "56e4e3dd90c7f3e167568935fcc45c23c8f858c6e0b456c9c7ac75a169bc66b5"
+    },
+    {
+      "path": "telas/34-permissoes/referencia.png",
+      "bytes": 99905,
+      "sha256": "070792c80c614cc38207a3d1b7803b7690afd282b79864448794831bbde05652"
+    },
+    {
+      "path": "telas/35-preferencias/COMANDO-VSCODE.md",
+      "bytes": 1305,
+      "sha256": "796d17a883cde9bfe5cbe8b8fc46ee989b2565dc0329f7ff1377b87f54ccee7c"
+    },
+    {
+      "path": "telas/35-preferencias/FUNCAO.md",
+      "bytes": 2321,
+      "sha256": "aaa4065ed3c35988f7a04a7466b1a25f76717613911ccf7346931a320820b080"
+    },
+    {
+      "path": "telas/35-preferencias/referencia.png",
+      "bytes": 97114,
+      "sha256": "293d53c7eeb9bb79b973d37fca69bd04cfa4766e6916ff97602bb07eeff5d7fb"
+    },
+    {
+      "path": "telas/36-conta/COMANDO-VSCODE.md",
+      "bytes": 1288,
+      "sha256": "d9a6b195c2cbf87dd175410a7bc9b2edb55fb5e2fc5aed85f0747cd51c1cb4c2"
+    },
+    {
+      "path": "telas/36-conta/FUNCAO.md",
+      "bytes": 1735,
+      "sha256": "7ee11c91de9cd68ce70dc7d6e17f501af1e31a629b0c08447cca634dae115f08"
+    },
+    {
+      "path": "telas/36-conta/referencia.png",
+      "bytes": 70977,
+      "sha256": "d18de02990f4e09603f368e144c431e111d44740c14622884368a80577e21b41"
+    },
+    {
+      "path": "telas/37-dispositivos/COMANDO-VSCODE.md",
+      "bytes": 1294,
+      "sha256": "b4cce4649957c606f14bce5a3cea56312050a043ebd3460498223b4d8f5b9cd1"
+    },
+    {
+      "path": "telas/37-dispositivos/FUNCAO.md",
+      "bytes": 1946,
+      "sha256": "d342ad698e919faef483921a0126ceb8f0ec56bdc34b888f0163b71a7b6e3a29"
+    },
+    {
+      "path": "telas/37-dispositivos/referencia.png",
+      "bytes": 52784,
+      "sha256": "8679210d0212916b786835259aeecd27b96cc6d4c10cb440baf4854a4753c0c2"
+    },
+    {
+      "path": "telas/38-backup/COMANDO-VSCODE.md",
+      "bytes": 1310,
+      "sha256": "8829dc8f42b4d5845dfd41e0b8b674a2d69d64508c92a5eed54033668cd6e79e"
+    },
+    {
+      "path": "telas/38-backup/FUNCAO.md",
+      "bytes": 1709,
+      "sha256": "8eb44b0d229bda6dcb1ab4806b61cb6ef6eac4b4a0445cd31b07240e3ffb7298"
+    },
+    {
+      "path": "telas/38-backup/referencia.png",
+      "bytes": 68926,
+      "sha256": "43f378dded8141030b00c0a09daac04919153496f777f1d9344481a873627ee1"
+    },
+    {
+      "path": "telas/39-privacidade/COMANDO-VSCODE.md",
+      "bytes": 1289,
+      "sha256": "95f5fac257d3181daf73cfb1238dc724fb26a57a42eeb7feaf39549588d82519"
+    },
+    {
+      "path": "telas/39-privacidade/FUNCAO.md",
+      "bytes": 1767,
+      "sha256": "905685845f6952381c2ae75339fb8a0ef5fd3e47b74e8a6496a512a1f4963e59"
+    },
+    {
+      "path": "telas/39-privacidade/referencia.png",
+      "bytes": 80250,
+      "sha256": "0184ffb36ae3fd8c44795efc367297d2a6fa65fbad77f642bd54f4fc0077127e"
+    },
+    {
+      "path": "telas/40-ajuda/COMANDO-VSCODE.md",
+      "bytes": 1300,
+      "sha256": "629d3cbd40963f698fab5ca791b891115ee498cf2f777c2a8689272fd048b7d5"
+    },
+    {
+      "path": "telas/40-ajuda/FUNCAO.md",
+      "bytes": 2021,
+      "sha256": "e85dd2bc1f441fab15a9eb8e928c74fdfd75448b0690c6727784056e2572716b"
+    },
+    {
+      "path": "telas/40-ajuda/referencia.png",
+      "bytes": 93062,
+      "sha256": "796a03494aed41b5a58a4b2b23a53f455ce4e14bf14ab4e35b888a6924d80563"
+    },
+    {
+      "path": "telas/41-ferramentas/COMANDO-VSCODE.md",
+      "bytes": 1298,
+      "sha256": "2e9665335b228751c84b797d53d6efbdbf975ce69466c5a5739ccb717bc4fb39"
+    },
+    {
+      "path": "telas/41-ferramentas/FUNCAO.md",
+      "bytes": 2265,
+      "sha256": "19342c71668abc5991e6383cbecedc5c0c343a1b69f10c6caa9b3c2fa7c20422"
+    },
+    {
+      "path": "telas/41-ferramentas/referencia.png",
+      "bytes": 112777,
+      "sha256": "f2135fe045591e3ac58c725cff0daca8d6408859d9f382a5cce83eae00be7f7c"
+    },
+    {
+      "path": "telas/42-balao-boa/balao-isolado.png",
+      "bytes": 19426,
+      "sha256": "a1b516a8108c21adeaa9b22ea6a05605b530e6e245302658bf3465543e3d15e0"
+    },
+    {
+      "path": "telas/42-balao-boa/COMANDO-VSCODE.md",
+      "bytes": 1296,
+      "sha256": "964f3a1fb105973c514ffe1adac724621b8374350e8d7e20b7f2c00481752af7"
+    },
+    {
+      "path": "telas/42-balao-boa/FUNCAO.md",
+      "bytes": 1950,
+      "sha256": "9072e5529ee2b7828542675ff71181b0418f48770ddb872f48f4d3a8b3641162"
+    },
+    {
+      "path": "telas/42-balao-boa/referencia.png",
+      "bytes": 100656,
+      "sha256": "81dd2188d089d8a991b4de81e86fd4e3d8823438d0ff60e4a3b73d41d522b29a"
+    },
+    {
+      "path": "telas/43-balao-atencao/balao-isolado.png",
+      "bytes": 19746,
+      "sha256": "d23bafb0fc49ddae982cdd7af84f221e7653beeb0f0c89d90959a02a29035d92"
+    },
+    {
+      "path": "telas/43-balao-atencao/COMANDO-VSCODE.md",
+      "bytes": 1309,
+      "sha256": "9445f059c81500b44a06dd66be2c897091413549e839606ddb544ffa6cf3645c"
+    },
+    {
+      "path": "telas/43-balao-atencao/FUNCAO.md",
+      "bytes": 1934,
+      "sha256": "d9f50bb675e08a52bc72f392121bb23c00075857b62fc4a9d3786efa9be9abf5"
+    },
+    {
+      "path": "telas/43-balao-atencao/referencia.png",
+      "bytes": 102170,
+      "sha256": "ab20078cc27dc9c2b4628b4d32f3b062aaaf015b14217e0302fae2e31dc48747"
+    },
+    {
+      "path": "telas/44-balao-ruim/balao-isolado.png",
+      "bytes": 18635,
+      "sha256": "ad9054c5cf682d1c123a2b74f27d46e87987c76da5f62e6aaa2f68f3b0a7b875"
+    },
+    {
+      "path": "telas/44-balao-ruim/COMANDO-VSCODE.md",
+      "bytes": 1315,
+      "sha256": "33722c526e6b37e58fbcb9f9ebdceeb25c775c9b84635def060459d5fd4a8a1e"
+    },
+    {
+      "path": "telas/44-balao-ruim/FUNCAO.md",
+      "bytes": 2106,
+      "sha256": "c1777dda6bde201ee2e63b36845297571f36793d4a1617a20343687aeb5598d7"
+    },
+    {
+      "path": "telas/44-balao-ruim/referencia.png",
+      "bytes": 100872,
+      "sha256": "0f9b56d61f8991e066a10d86820342bd0a73a321e4916115986fb8647a527978"
+    },
+    {
+      "path": "telas/45-menu-flutuante/COMANDO-VSCODE.md",
+      "bytes": 1312,
+      "sha256": "4ad6653707792ddaa7d02cd5a7b59163ee90c0183dd9a81ba8999aa6ade41200"
+    },
+    {
+      "path": "telas/45-menu-flutuante/FUNCAO.md",
+      "bytes": 2188,
+      "sha256": "d6ca74abd906d1e04eae4e3a16180a9c650633183939ad5b5e82544c46a45252"
+    },
+    {
+      "path": "telas/45-menu-flutuante/referencia.png",
+      "bytes": 94985,
+      "sha256": "252bdae820b8cc030a6f1a57abe7faa405bfa5249875d6229ebfd7f51a2fb383"
+    },
+    {
+      "path": "telas/46-editar-criterio/COMANDO-VSCODE.md",
+      "bytes": 1316,
+      "sha256": "2cb1e54f7163eca5066089db6ab719a88d30091d6052e0775e480e41645f6c5e"
+    },
+    {
+      "path": "telas/46-editar-criterio/FUNCAO.md",
+      "bytes": 2401,
+      "sha256": "be6d89003fec92c29d209fafb9b8054f1c002cd2168aff76d01ad74a9f26b5f2"
+    },
+    {
+      "path": "telas/46-editar-criterio/referencia.png",
+      "bytes": 100905,
+      "sha256": "ee647bde50b9e228dc98353e49c52cce57d0ea1ea16b0ad031566c5327618733"
+    },
+    {
+      "path": "telas/47-combinacao/COMANDO-VSCODE.md",
+      "bytes": 1314,
+      "sha256": "650534ff0c32c1616bc76ee6cfe99d71173460a02d408bc7a3ac2e08c58ee6aa"
+    },
+    {
+      "path": "telas/47-combinacao/FUNCAO.md",
+      "bytes": 2337,
+      "sha256": "e854a6ccde765e12edca32b7f42633b5f4861dfb1c9c3e55f750d4ee1b5ab922"
+    },
+    {
+      "path": "telas/47-combinacao/referencia.png",
+      "bytes": 111119,
+      "sha256": "9a1b03ed8c9e95e7a5ede194ea7c937df9ebeaf1f2936f0fe403bb3a65656242"
+    },
+    {
+      "path": "telas/48-ordem-campos/COMANDO-VSCODE.md",
+      "bytes": 1301,
+      "sha256": "e0fe85e8e7caa63bcc753f2918538a8a04b218b1583c0946e8570314285b0136"
+    },
+    {
+      "path": "telas/48-ordem-campos/FUNCAO.md",
+      "bytes": 1654,
+      "sha256": "1d4c0b66e0e2078399067516b71cc896771aa62ac53591601a1106da89d4ce6c"
+    },
+    {
+      "path": "telas/48-ordem-campos/referencia.png",
+      "bytes": 103683,
+      "sha256": "22c1f810dbfc396661b3eeb375510a302a48c6558fe27af96d00cdff89d236dc"
+    },
+    {
+      "path": "telas/49-cartao-secundario/COMANDO-VSCODE.md",
+      "bytes": 1318,
+      "sha256": "598399823ded4713fdac0d636de8618f8bea5677adc80f8c11d6862215d8ede4"
+    },
+    {
+      "path": "telas/49-cartao-secundario/FUNCAO.md",
+      "bytes": 1766,
+      "sha256": "1127d68c92bf4c2392f6fe8983ff950cc6a26fdc978f5b9cc62193b721b3825c"
+    },
+    {
+      "path": "telas/49-cartao-secundario/referencia.png",
+      "bytes": 78009,
+      "sha256": "6425f5be81671920121fc018bdff17a3ab21a201f55f9d095be0909b55ad3db8"
+    },
+    {
+      "path": "telas/50-aparencia-escura/COMANDO-VSCODE.md",
+      "bytes": 1306,
+      "sha256": "7305285e13c1e2392eb0382fc7f0e4e7aae03dd254031772c07cb962c6e6bf4b"
+    },
+    {
+      "path": "telas/50-aparencia-escura/FUNCAO.md",
+      "bytes": 2242,
+      "sha256": "9acbeb4241613689fb0453c3da4b8c285a84d7ec150a1cc4e8fb9e6f18a8b347"
+    },
+    {
+      "path": "telas/50-aparencia-escura/referencia.png",
+      "bytes": 112772,
+      "sha256": "a88fc3af41f16fbdec33a9574153d7d329102ed691651e2ca4ca13dccc5a094e"
+    },
+    {
+      "path": "telas.js",
+      "bytes": 10962,
+      "sha256": "498e88c7a3fb46155701cc3e7047a6c7ada5ab35801f852817e94b3dd335496e"
+    },
+    {
+      "path": "telas.json",
+      "bytes": 13345,
+      "sha256": "eccf6a2ffb1c2974ed689da8093b0ff0d5dbb94bb49979564e6562bac20474ff"
+    },
+    {
+      "path": "VERIFICACAO.json",
+      "bytes": 3349,
+      "sha256": "22405d188a4c52dc3fb6da395a2fbf437fc44988370d40f1ce2421226e9031ec"
+    }
+  ]
+}

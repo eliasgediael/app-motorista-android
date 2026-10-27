@@ -1,0 +1,76 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_VERSION_NAME: "0.1.0"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@v4
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "9.8.2"
+
+      - name: Testes unitários
+        run: gradle --no-daemon :app:testDebugUnitTest
+
+      - name: Preparar assinatura de teste
+        env:
+          KEYSTORE_B64: ${{ secrets.TEST_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "Segredo TEST_KEYSTORE_B64 ausente"; exit 1; fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/test.keystore"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/test.keystore" >> "$GITHUB_ENV"
+
+      - name: Compilar APK de teste
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.TEST_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.TEST_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.TEST_KEY_PASSWORD }}
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Nomear APK por versão e commit
+        id: apk
+        run: |
+          SHA7="${GITHUB_SHA::7}"
+          NAME="AppMotorista-v${APP_VERSION_NAME}-${SHA7}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=v${APP_VERSION_NAME}-build${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: ${{ steps.apk.outputs.name }}
+
+      - name: Publicar em Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.apk.outputs.tag }}" "${{ steps.apk.outputs.name }}" \
+            --target "$GITHUB_SHA" \
+            --title "Teste ${APP_VERSION_NAME} (build ${GITHUB_RUN_NUMBER}, ${GITHUB_SHA::7})" \
+            --notes "APK de TESTE. Versão ${APP_VERSION_NAME}, commit ${GITHUB_SHA}. Sem integração com 99Pop; balões e botão são simulação. Mesma assinatura de teste em todas as versões." \
+            --prerelease
