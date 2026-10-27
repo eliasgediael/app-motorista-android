@@ -7,21 +7,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -148,7 +150,8 @@ fun OfferBalloon(
         val showResult = CardField.EstimatedResult in fields
 
         if (info.isNotEmpty()) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            // Empilhado: etiqueta de origem em cima, dados embaixo. Lado a lado a etiqueta longa espremia o texto a largura zero.
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     values.tag,
                     fontSize = (11 * scale).sp,
@@ -160,7 +163,7 @@ fun OfferBalloon(
                     info.joinToString(" · ") { infoText(it, values) },
                     fontSize = (13 * scale).sp,
                     color = Grey,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -224,21 +227,18 @@ private fun MetricGrid(cells: List<Cell>, accent: Color, scale: Float, compact: 
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val effective = LocalDensity.current.fontScale * scale
         val columns = if (maxWidth < 260.dp || effective >= 1.35f) 2 else 3
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             cells.chunked(columns).forEach { rowCells ->
-                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     rowCells.forEach { cell ->
-                        Row(Modifier.weight(1f)) {
-                            Spacer(Modifier.width(3.dp).fillMaxHeight().background(accent))
-                            Column(Modifier.padding(start = 8.dp)) {
-                                Text(cell.label, fontSize = (11 * scale).sp, color = Grey)
-                                Text(
-                                    cell.value,
-                                    fontSize = ((if (compact) 16 else 24) * scale).sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Ink,
-                                )
-                            }
+                        Column(
+                            Modifier
+                                .weight(1f)
+                                .drawBehind { drawRect(accent, size = Size(3.dp.toPx(), size.height)) }
+                                .padding(start = 11.dp),
+                        ) {
+                            Text(cell.label, fontSize = (11 * scale).sp, color = Grey)
+                            FitText(cell.value, (if (compact) 16 else 24) * scale)
                         }
                     }
                     repeat(columns - rowCells.size) { Spacer(Modifier.weight(1f)) }
@@ -247,6 +247,25 @@ private fun MetricGrid(cells: List<Cell>, accent: Color, scale: Float, compact: 
         }
     }
 }
+
+/** Número em uma linha só: se não couber na coluna, a fonte diminui até caber. Nunca quebra no meio. */
+@Composable
+private fun FitText(text: String, maxSp: Float) {
+    var sp by remember(text, maxSp) { mutableFloatStateOf(maxSp) }
+    Text(
+        text,
+        fontSize = sp.sp,
+        fontWeight = FontWeight.Bold,
+        color = Ink,
+        maxLines = 1,
+        softWrap = false,
+        onTextLayout = { r ->
+            if (r.getLineRight(0) > r.size.width + 0.5f && sp > MIN_VALUE_SP) sp = maxOf(MIN_VALUE_SP, sp * 0.92f)
+        },
+    )
+}
+
+private const val MIN_VALUE_SP = 9f
 
 private fun infoText(field: CardField, v: BalloonValues): String = when (field) {
     CardField.TotalTime -> v.time

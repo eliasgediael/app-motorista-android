@@ -65,7 +65,7 @@ object ScreenCatalog {
     val implemented: Set<String> = setOf(
         "painel", "criterios", "editar-criterio", "cartao", "balao-boa", "balao-atencao", "balao-ruim", "combinacao", "atalhos", "camera",
         "jornada", "menu-flutuante", "financas", "lancamento", "categorias", "preferencias", "aparencia-escura", "permissoes", "conta",
-        "dispositivos", "backup", "privacidade", "ferramentas",
+        "dispositivos", "backup", "privacidade", "ferramentas", "veiculos", "manutencao", "custo", "contas", "reserva", "metas", "fechamento",
     )
 
     /** Funções que dependem de decisão ou validação externa. Não bloqueiam as demais. */

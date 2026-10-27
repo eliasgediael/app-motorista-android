@@ -16,6 +16,13 @@ import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
 import br.app.motorista.ui.copilot.CopilotMenuScreen
 import br.app.motorista.ui.finance.CategoriesScreen
+import br.app.motorista.ui.planning.BillsScreen
+import br.app.motorista.ui.planning.DayCloseScreen
+import br.app.motorista.ui.planning.GoalsScreen
+import br.app.motorista.ui.planning.ReserveScreen
+import br.app.motorista.ui.vehicle.CostScreen
+import br.app.motorista.ui.vehicle.MaintenanceScreen
+import br.app.motorista.ui.vehicle.VehiclesScreen
 import br.app.motorista.ui.finance.EntryFormScreen
 import br.app.motorista.ui.finance.FinanceScreen
 import br.app.motorista.ui.settings.AccountScreen
@@ -110,6 +117,13 @@ fun AppNavHost(
                     onBack = back,
                     onOpen = open,
                 )
+                "veiculos" -> VehiclesScreen(back, open)
+                "manutencao" -> MaintenanceScreen(back, open)
+                "custo" -> CostScreen(back, open)
+                "contas" -> BillsScreen(back, open)
+                "reserva" -> ReserveScreen(back, open)
+                "metas" -> GoalsScreen(back, open)
+                "fechamento" -> DayCloseScreen(back, open)
                 "financas" -> FinanceScreen(back, open)
                 "lancamento" -> EntryFormScreen(back, open)
                 "categorias" -> CategoriesScreen(back, open)

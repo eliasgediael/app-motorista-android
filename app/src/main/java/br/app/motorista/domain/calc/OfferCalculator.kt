@@ -30,6 +30,7 @@ enum class UnavailableReason(val label: String) {
     DenominatorNotPositive("distância ou tempo da base não é positivo"),
     BasisMissing("base de distância/tempo não escolhida"),
     RatingMissing("nota do passageiro ausente"),
+    CostMissing("modelo de custo ausente ou não confirmado"),
 }
 
 sealed interface MetricResult {
@@ -99,6 +100,21 @@ object OfferCalculator {
                 MetricResult.Value(t.fare.divide(minutes, mc), "R$/min", basis, "valor ao motorista / minutos ($FORMULA_VERSION)")
             }
         }
+
+    /**
+     * Resultado estimado (R$) = valor ao motorista − custo por km × km da base escolhida.
+     * Só existe com modelo de custo validado ([costPerKm] != null). O valor da oferta já é o do motorista:
+     * nenhuma comissão é descontada de novo. Pode ser negativo. Não é lucro líquido real.
+     */
+    fun estimatedResult(input: OfferInput, basis: DistanceTimeBasis?, costPerKm: BigDecimal?): MetricResult {
+        if (costPerKm == null) return MetricResult.Unavailable(UnavailableReason.CostMissing)
+        if (basis == null) return MetricResult.Unavailable(UnavailableReason.BasisMissing)
+        val fare = fareReais(input) ?: return MetricResult.Unavailable(UnavailableReason.FareMissing)
+        val meters = totalMeters(input, basis) ?: return MetricResult.Unavailable(UnavailableReason.DistanceMissing)
+        if (meters <= 0) return MetricResult.Unavailable(UnavailableReason.DenominatorNotPositive)
+        val km = BigDecimal(meters).divide(BigDecimal(1000), mc)
+        return MetricResult.Value(fare - costPerKm.multiply(km, mc), "R$", basis, "valor ao motorista − custo/km × km da base ($FORMULA_VERSION)")
+    }
 
     fun passengerRating(input: OfferInput): MetricResult {
         val rating = input.passengerRating ?: return MetricResult.Unavailable(UnavailableReason.RatingMissing)

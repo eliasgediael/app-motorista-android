@@ -39,7 +39,10 @@ import br.app.motorista.domain.calc.OfferCalculator
 import br.app.motorista.domain.calc.OfferInput
 import br.app.motorista.domain.calc.OfferParsing
 import br.app.motorista.domain.calc.Parsed
+import br.app.motorista.data.AppData
 import br.app.motorista.domain.card.PreviewState
+import br.app.motorista.domain.vehicle.CostModel
+import br.app.motorista.domain.vehicle.CostResult
 import br.app.motorista.domain.criteria.DistanceTimeBasis
 import br.app.motorista.domain.offer.Freshness
 import br.app.motorista.domain.offer.OfferOrigin
@@ -290,9 +293,19 @@ private fun simulatorValues(state: PreferencesState, parsed: ParsedOffer, tag: S
         perHour = fmt(OfferCalculator.revenuePerHour(input, basis)),
         perMinute = fmt(OfferCalculator.revenuePerMinute(input, basis)),
         fare = input.fareCents?.let { Display.decimal(BigDecimal(it).movePointLeft(2)) } ?: "—",
-        result = "Indisponível",
+        result = resultText(input, basis),
         tag = tag,
     )
+}
+
+/** Resultado estimado só com modelo de custo confirmado pelo usuário e base escolhida; senão, indisponível. */
+private fun resultText(input: OfferInput, basis: DistanceTimeBasis?): String {
+    val validated = AppData.setting("costValidated") == "true"
+    val cost = if (validated) (CostModel.costPerKm(AppData.costComponents.items.value) as? CostResult.Valid)?.perKm else null
+    return when (val r = OfferCalculator.estimatedResult(input, basis, cost)) {
+        is MetricResult.Value -> "R$ " + Display.decimal(r.value)
+        is MetricResult.Unavailable -> "indisponível (" + r.reason.label + ")"
+    }
 }
 
 @Composable

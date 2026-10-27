@@ -3,7 +3,17 @@ package br.app.motorista.data
 import android.content.Context
 import br.app.motorista.domain.finance.Category
 import br.app.motorista.domain.finance.CategoryKind
+import br.app.motorista.domain.finance.Bill
+import br.app.motorista.domain.finance.BillPayment
+import br.app.motorista.domain.finance.DayClose
+import br.app.motorista.domain.finance.Goal
+import br.app.motorista.domain.finance.ReserveEntry
+import br.app.motorista.domain.finance.Setting
 import br.app.motorista.domain.finance.Transaction
+import br.app.motorista.domain.vehicle.CostComponent
+import br.app.motorista.domain.vehicle.MaintenanceItem
+import br.app.motorista.domain.vehicle.MaintenanceRecord
+import br.app.motorista.domain.vehicle.Vehicle
 import java.io.File
 import java.util.UUID
 import org.json.JSONObject
@@ -20,6 +30,26 @@ object AppData {
         private set
     lateinit var transactions: Repo<Transaction>
         private set
+    lateinit var vehicles: Repo<Vehicle>
+        private set
+    lateinit var maintenanceItems: Repo<MaintenanceItem>
+        private set
+    lateinit var maintenanceRecords: Repo<MaintenanceRecord>
+        private set
+    lateinit var costComponents: Repo<CostComponent>
+        private set
+    lateinit var bills: Repo<Bill>
+        private set
+    lateinit var billPayments: Repo<BillPayment>
+        private set
+    lateinit var reserve: Repo<ReserveEntry>
+        private set
+    lateinit var goals: Repo<Goal>
+        private set
+    lateinit var dayCloses: Repo<DayClose>
+        private set
+    lateinit var settings: Repo<Setting>
+        private set
 
     /** Repositórios por nome, para backup, restauração e apagar tudo. */
     private val registry = linkedMapOf<String, Repo<*>>()
@@ -30,6 +60,16 @@ object AppData {
         dir = File(context.applicationContext.filesDir, "data").also { it.mkdirs() }
         categories = register("categories", CategoryCodec)
         transactions = register("transactions", TransactionCodec)
+        vehicles = register("vehicles", VehicleCodec)
+        maintenanceItems = register("maintenanceItems", MaintenanceItemCodec)
+        maintenanceRecords = register("maintenanceRecords", MaintenanceRecordCodec)
+        costComponents = register("costComponents", CostComponentCodec)
+        bills = register("bills", BillCodec)
+        billPayments = register("billPayments", BillPaymentCodec)
+        reserve = register("reserve", ReserveCodec)
+        goals = register("goals", GoalCodec)
+        dayCloses = register("dayCloses", DayCloseCodec)
+        settings = register("settings", SettingCodec)
         initialized = true
         seedCategoriesIfEmpty()
     }
@@ -38,6 +78,15 @@ object AppData {
         Repo(File(dir, "$name.json"), codec).also { registry[name] = it }
 
     fun newId(): String = UUID.randomUUID().toString()
+
+    fun setting(id: String): String? = settings.get(id)?.value
+
+    fun putSetting(id: String, value: String) = settings.upsert(Setting(id, value))
+
+    fun removeSetting(id: String) = settings.remove(id)
+
+    /** Veículo ativo (id), se o usuário escolheu um e ele ainda existe e não está arquivado. */
+    fun activeVehicle(): Vehicle? = setting("activeVehicle")?.let { id -> vehicles.get(id)?.takeIf { !it.archived } }
 
     /**
      * Nomes iniciais editáveis (sem valores). O usuário pode renomear, arquivar ou criar outros.

@@ -9,8 +9,12 @@ sealed interface Parsed<out T> {
     data object Invalid : Parsed<Nothing>
 }
 
+/** Valor digitado, ou null se vazio ou inválido. */
+fun <T> Parsed<T>.valueOrNull(): T? = (this as? Parsed.Ok<T>)?.value
+
 object OfferParsing {
-    private fun decimal(text: String): Parsed<BigDecimal> {
+    /** Decimal não negativo (vírgula ou ponto). Vazio = ausente. */
+    fun decimal(text: String): Parsed<BigDecimal> {
         val t = text.trim().replace(',', '.')
         if (t.isEmpty()) return Parsed.Blank
         val v = t.toBigDecimalOrNull() ?: return Parsed.Invalid
@@ -46,6 +50,14 @@ object OfferParsing {
         if (t.isEmpty()) return Parsed.Blank
         val m = t.toLongOrNull() ?: return Parsed.Invalid
         return if (m < 0) Parsed.Invalid else Parsed.Ok(m * 60)
+    }
+
+    /** Inteiro não negativo (km, dias). Vazio = ausente. */
+    fun wholeNumber(text: String): Parsed<Long> {
+        val t = text.trim()
+        if (t.isEmpty()) return Parsed.Blank
+        val v = t.toLongOrNull() ?: return Parsed.Invalid
+        return if (v < 0) Parsed.Invalid else Parsed.Ok(v)
     }
 
     fun rating(text: String): Parsed<BigDecimal> = decimal(text)

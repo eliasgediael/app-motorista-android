@@ -82,6 +82,7 @@ object CopilotController {
     fun ensureInit(context: Context) {
         if (initialized) return
         app = context.applicationContext
+        br.app.motorista.data.AppData.init(app)
         journey = JourneyStore.load(app)
         BalloonHub.addListener { main.post { onHubChanged() } }
         // Estado em execução nunca é herdado: gravação e voz começam desligadas em processo novo.
