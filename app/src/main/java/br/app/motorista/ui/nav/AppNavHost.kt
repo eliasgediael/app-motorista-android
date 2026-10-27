@@ -15,6 +15,15 @@ import br.app.motorista.ui.balloon.BalloonPreviewScreen
 import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
 import br.app.motorista.ui.copilot.CopilotMenuScreen
+import br.app.motorista.ui.assist.AlertsScreen
+import br.app.motorista.ui.assist.HelpScreen
+import br.app.motorista.ui.assist.MessageScreen
+import br.app.motorista.ui.assist.NavigationScreen
+import br.app.motorista.ui.assist.PlacesScreen
+import br.app.motorista.ui.assist.VoiceSettingsScreen
+import br.app.motorista.ui.quote.PrivateTripScreen
+import br.app.motorista.ui.quote.ReceiptScreen
+import br.app.motorista.ui.recording.RecordingsScreen
 import br.app.motorista.ui.card.FieldOrderScreen
 import br.app.motorista.ui.card.SafeAreaScreen
 import br.app.motorista.ui.card.SecondaryCardScreen
@@ -142,6 +151,16 @@ fun AppNavHost(
                 "detalhe" -> TripDetailScreen(back, open)
                 "relatorios" -> ReportsScreen(back, open)
                 "horarios" -> BestTimesScreen(back, open)
+                "analise" -> SimulatorScreen(state = state, title = "Análise de corrida", onChange = preferences::updateSimulator, onBack = back, onOpen = open)
+                "mensagem" -> MessageScreen(back, open)
+                "alertas" -> AlertsScreen(back, open)
+                "locais" -> PlacesScreen(back, open)
+                "voz" -> VoiceSettingsScreen(back, open)
+                "navegacao" -> NavigationScreen(back, open)
+                "ajuda" -> HelpScreen(back, open)
+                "particular" -> PrivateTripScreen(back, open)
+                "recibo" -> ReceiptScreen(back, open)
+                "gravacoes" -> RecordingsScreen(back, open)
                 "financas" -> FinanceScreen(back, open)
                 "lancamento" -> EntryFormScreen(back, open)
                 "categorias" -> CategoriesScreen(back, open)

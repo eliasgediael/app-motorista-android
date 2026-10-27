@@ -58,3 +58,14 @@ object ProfileCodec : Codec<Profile> {
 
     override fun idOf(item: Profile) = item.id
 }
+
+object FlaggedTermCodec : Codec<br.app.motorista.domain.assist.FlaggedTerm> {
+    override fun toJson(item: br.app.motorista.domain.assist.FlaggedTerm) =
+        JSONObject().put("id", item.id).put("text", item.text).put("kind", item.kind.name)
+
+    override fun fromJson(o: JSONObject) = br.app.motorista.domain.assist.FlaggedTerm(
+        o.getString("id"), o.getString("text"), br.app.motorista.domain.assist.PlaceKind.valueOf(o.getString("kind")),
+    )
+
+    override fun idOf(item: br.app.motorista.domain.assist.FlaggedTerm) = item.id
+}

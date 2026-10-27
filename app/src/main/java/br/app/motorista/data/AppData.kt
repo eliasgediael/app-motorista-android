@@ -3,6 +3,7 @@ package br.app.motorista.data
 import android.content.Context
 import br.app.motorista.domain.finance.Category
 import br.app.motorista.domain.finance.CategoryKind
+import br.app.motorista.domain.assist.FlaggedTerm
 import br.app.motorista.domain.finance.Bill
 import br.app.motorista.domain.finance.BillPayment
 import br.app.motorista.domain.finance.DayClose
@@ -59,6 +60,8 @@ object AppData {
         private set
     lateinit var profiles: Repo<Profile>
         private set
+    lateinit var flaggedTerms: Repo<FlaggedTerm>
+        private set
 
     /** Repositórios por nome, para backup, restauração e apagar tudo. */
     private val registry = linkedMapOf<String, Repo<*>>()
@@ -82,6 +85,7 @@ object AppData {
         trips = register("trips", TripCodec)
         journeys = register("journeys", JourneyRecordCodec)
         profiles = register("profiles", ProfileCodec)
+        flaggedTerms = register("flaggedTerms", FlaggedTermCodec)
         initialized = true
         seedCategoriesIfEmpty()
     }

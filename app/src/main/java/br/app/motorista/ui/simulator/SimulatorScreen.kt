@@ -33,6 +33,8 @@ import br.app.motorista.domain.assessment.Assessment
 import br.app.motorista.domain.assessment.Band
 import br.app.motorista.domain.assessment.Evaluation
 import br.app.motorista.domain.assessment.OfferEvaluator
+import br.app.motorista.domain.assist.AlertCalc
+import br.app.motorista.domain.assist.PlaceMatcher
 import br.app.motorista.domain.calc.Display
 import br.app.motorista.domain.calc.MetricResult
 import br.app.motorista.domain.calc.OfferCalculator
@@ -57,6 +59,8 @@ import br.app.motorista.ui.common.InfoNote
 import br.app.motorista.ui.common.ScreenScaffold
 import br.app.motorista.ui.common.SectionTitle
 import br.app.motorista.ui.common.SurfaceCard
+import br.app.motorista.ui.common.TextInput
+import br.app.motorista.ui.assist.currentAlertRules
 import br.app.motorista.ui.components.BalloonValues
 import br.app.motorista.ui.state.PreferencesState
 import br.app.motorista.ui.state.SimulatorForm
@@ -94,6 +98,7 @@ private fun parse(f: SimulatorForm): ParsedOffer {
 @Composable
 fun SimulatorScreen(
     state: PreferencesState,
+    title: String = "Simulador de oferta",
     onChange: ((SimulatorForm) -> SimulatorForm) -> Unit,
     onBack: () -> Unit,
     onOpen: (String) -> Unit,
@@ -102,8 +107,12 @@ fun SimulatorScreen(
     val parsed = parse(form)
     val bad = parsed.invalidFields
     val evaluation = OfferEvaluator.evaluate(parsed.input, state.activeRules(), state.policy)
+    val terms by AppData.flaggedTerms.items.collectAsState()
+    AppData.settings.items.collectAsState().value
+    // Motivos de atenção: alerta com limite do usuário e termos sinalizados. São avisos, não avaliação nem bloqueio.
+    val extras = AlertCalc.evaluate(parsed.input, currentAlertRules()) + PlaceMatcher.matches(form.pickupText, form.dropoffText, terms)
 
-    ScreenScaffold("Simulador de oferta", onBack, onOpen) {
+    ScreenScaffold(title, onBack, onOpen) {
         InfoNote("Digite uma oferta para ver os cálculos. Entrada manual: nada é lido de 99, Uber ou inDrive. Campo vazio é dado ausente, não zero.")
 
         SurfaceCard {
@@ -122,6 +131,8 @@ fun SimulatorScreen(
                     Half("Retorno min", form.returnMin, "returnMin" in bad, true) { v -> onChange { it.copy(returnMin = v) } }
                 }
                 Num("Nota do passageiro", form.rating, "rating" in bad) { v -> onChange { it.copy(rating = v) } }
+                TextInput("Embarque (texto, opcional, não é guardado)", form.pickupText, { v -> onChange { it.copy(pickupText = v) } })
+                TextInput("Destino (texto, opcional, não é guardado)", form.dropoffText, { v -> onChange { it.copy(dropoffText = v) } })
                 if (bad.isNotEmpty()) {
                     Text(
                         "Há campos inválidos: use números não negativos; minutos inteiros; até 2 casas em R$ e 3 em km.",
@@ -157,9 +168,13 @@ fun SimulatorScreen(
 
         SectionTitle("Avaliação")
         AssessmentSection(evaluation, state, parsed, onOpen)
+        if (extras.isNotEmpty()) {
+            SectionTitle("Atenção")
+            extras.forEach { Text("• $it", color = MaterialTheme.colorScheme.error) }
+        }
 
         SectionTitle("Enviar ao balão flutuante")
-        PublishSection(state, parsed, onChange)
+        PublishSection(state, parsed, onChange, extras)
 
         SectionTitle("Diagnóstico do balão flutuante")
         DiagnosticSection()
@@ -228,7 +243,7 @@ private fun DiagnosticSection() {
 }
 
 @Composable
-private fun PublishSection(state: PreferencesState, parsed: ParsedOffer, onChange: ((SimulatorForm) -> SimulatorForm) -> Unit) {
+private fun PublishSection(state: PreferencesState, parsed: ParsedOffer, onChange: ((SimulatorForm) -> SimulatorForm) -> Unit, extras: List<String>) {
     val platform = state.simulator.platform
     var published by remember { mutableStateOf<String?>(null) }
     Text(
@@ -264,7 +279,7 @@ private fun PublishSection(state: PreferencesState, parsed: ParsedOffer, onChang
             )
             val evaluation = OfferEvaluator.evaluate(parsed.input, state.activeRules(), state.policy)
             val values = simulatorValues(state, parsed, p.label)
-            if (BalloonHub.publish(snapshot, evaluation, values)) {
+            if (BalloonHub.publish(snapshot, evaluation, values, extras)) {
                 // Fica no histórico como NÃO confirmada: nunca vira receita sem confirmação do usuário.
                 val summary = RuleVersion.summary(state.activeRules(), state.policy)
                 AppData.trips.upsert(

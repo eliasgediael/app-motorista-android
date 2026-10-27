@@ -310,10 +310,11 @@ object CopilotController {
             br.app.motorista.domain.assessment.Band.Bad -> "avaliação vermelha"
             null -> "sem avaliação geral"
         }
-        announce(
-            published.platform.label + ", entrada " + published.origin.label + ". " +
-                "Reais por quilômetro " + v.perKm + ", reais por hora " + v.perHour + ". " + colour + ".",
+        // O que falar e em que ordem vem das escolhas do usuário (Voz e notificações).
+        val text = br.app.motorista.domain.assist.VoiceText.build(
+            br.app.motorista.ui.assist.currentVoiceItems(), published.platform.label, published.origin.label, v.perKm, v.perHour, v.perMinute, colour,
         )
+        if (text.isNotBlank()) announce(text)
     }
 
     // ---- jornada ----

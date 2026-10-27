@@ -44,7 +44,7 @@ object BalloonHub {
     private fun notifyChanged() = listeners.forEach { it() }
 
     @Synchronized
-    fun publish(snapshot: OfferSnapshot, evaluation: Evaluation, values: BalloonValues): Boolean {
+    fun publish(snapshot: OfferSnapshot, evaluation: Evaluation, values: BalloonValues, extras: List<String> = emptyList()): Boolean {
         if (!store.accept(snapshot)) return false
         val a = evaluation.assessment
         latestByPlatform[snapshot.platform] = PublishedBalloon(
@@ -53,7 +53,7 @@ object BalloonHub {
             origin = snapshot.origin,
             capturedAtMs = snapshot.capturedAtMs,
             band = (a as? Assessment.Colored)?.band,
-            note = noteFor(a),
+            note = (listOf(noteFor(a)) + extras).joinToString(" "),
             values = values,
         )
         notifyChanged()

@@ -67,6 +67,7 @@ object ScreenCatalog {
         "jornada", "menu-flutuante", "financas", "lancamento", "categorias", "preferencias", "aparencia-escura", "permissoes", "conta",
         "dispositivos", "backup", "privacidade", "ferramentas", "veiculos", "manutencao", "custo", "contas", "reserva", "metas", "fechamento",
         "perfis", "plataformas", "ordem-campos", "cartao-secundario", "sobreposicao", "historico", "detalhe", "relatorios", "horarios",
+        "analise", "mensagem", "alertas", "locais", "voz", "navegacao", "ajuda", "particular", "recibo", "gravacoes",
     )
 
     /** Funções que dependem de decisão ou validação externa. Não bloqueiam as demais. */

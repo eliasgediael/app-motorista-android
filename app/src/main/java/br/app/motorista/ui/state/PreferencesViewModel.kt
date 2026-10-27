@@ -31,6 +31,9 @@ data class SimulatorForm(
     val returnKm: String = "",
     val returnMin: String = "",
     val rating: String = "",
+    /** Texto digitado só para conferir locais sinalizados. Não é guardado em disco. */
+    val pickupText: String = "",
+    val dropoffText: String = "",
     /** Base usada só para EXIBIR métricas do cartão; cada critério usa a base própria. */
     val displayBasis: DistanceTimeBasis? = null,
     /** Plataforma da oferta digitada. Sem escolha, não há como publicar (origem desconhecida). */
