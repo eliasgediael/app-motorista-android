@@ -44,6 +44,8 @@ import br.app.motorista.domain.card.PreviewState
 import br.app.motorista.domain.vehicle.CostModel
 import br.app.motorista.domain.vehicle.CostResult
 import br.app.motorista.domain.criteria.DistanceTimeBasis
+import br.app.motorista.domain.history.RuleVersion
+import br.app.motorista.domain.history.TripRecord
 import br.app.motorista.domain.offer.Freshness
 import br.app.motorista.domain.offer.OfferOrigin
 import br.app.motorista.domain.offer.OfferSnapshot
@@ -59,6 +61,7 @@ import br.app.motorista.ui.components.BalloonValues
 import br.app.motorista.ui.state.PreferencesState
 import br.app.motorista.ui.state.SimulatorForm
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.UUID
 
 private data class ParsedOffer(val input: OfferInput, val invalidFields: Set<String>)
@@ -260,7 +263,20 @@ private fun PublishSection(state: PreferencesState, parsed: ParsedOffer, onChang
                 input = parsed.input,
             )
             val evaluation = OfferEvaluator.evaluate(parsed.input, state.activeRules(), state.policy)
-            if (BalloonHub.publish(snapshot, evaluation, simulatorValues(state, parsed, p.label))) {
+            val values = simulatorValues(state, parsed, p.label)
+            if (BalloonHub.publish(snapshot, evaluation, values)) {
+                // Fica no histórico como NÃO confirmada: nunca vira receita sem confirmação do usuário.
+                val summary = RuleVersion.summary(state.activeRules(), state.policy)
+                AppData.trips.upsert(
+                    TripRecord(
+                        id = snapshot.id, atMs = System.currentTimeMillis(), epochDay = LocalDate.now().toEpochDay(),
+                        platform = p.label, origin = OfferOrigin.Manual.label, input = parsed.input,
+                        metricsText = "R$/km " + values.perKm + " · R$/h " + values.perHour + " · R$/min " + values.perMinute +
+                            " (base " + (state.simulator.displayBasis?.label ?: "não escolhida") + ")",
+                        bandName = (evaluation.assessment as? Assessment.Colored)?.band?.name,
+                        note = "", ruleVersionId = RuleVersion.id(summary), ruleSummary = summary,
+                    ),
+                )
                 published = p.label + " · manual · válida por " + (Freshness.PROVISIONAL_MAX_AGE_MS / 1000) + " s (prazo provisório)"
             }
         },

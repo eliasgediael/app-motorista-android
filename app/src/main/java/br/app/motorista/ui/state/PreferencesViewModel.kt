@@ -111,6 +111,18 @@ class PreferencesViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { fromStored(StoredPrefs()).copy(simulator = SimulatorForm()) }
     }
 
+    /** Critérios, política e estilo do cartão atuais, para salvar como perfil de trabalho. */
+    fun exportProfileJson(): String {
+        val s = _state.value
+        return br.app.motorista.data.PrefsCodec.toJson(StoredPrefs(s.drafts, emptySet(), s.cardStyle, s.policy, 1f, ThemeMode.System)).toString()
+    }
+
+    /** Aplica um perfil salvo: só critérios, política e cartão mudam (tema, botão e aplicativos ficam). */
+    fun applyProfileJson(json: String) {
+        val p = runCatching { br.app.motorista.data.PrefsCodec.fromJson(org.json.JSONObject(json)) }.getOrNull() ?: return
+        persistChange { it.copy(drafts = p.drafts, policy = p.policy, cardStyle = p.cardStyle, reviewedMetric = null) }
+    }
+
     fun setThemeMode(mode: ThemeMode) = persistChange { it.copy(themeMode = mode) }
 
     fun editMetric(metric: CriterionMetric) = _state.update { it.copy(editingMetric = metric, reviewedMetric = null) }

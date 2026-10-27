@@ -15,7 +15,16 @@ import br.app.motorista.ui.balloon.BalloonPreviewScreen
 import br.app.motorista.ui.card.CardStyleScreen
 import br.app.motorista.ui.combination.CombinationScreen
 import br.app.motorista.ui.copilot.CopilotMenuScreen
+import br.app.motorista.ui.card.FieldOrderScreen
+import br.app.motorista.ui.card.SafeAreaScreen
+import br.app.motorista.ui.card.SecondaryCardScreen
 import br.app.motorista.ui.finance.CategoriesScreen
+import br.app.motorista.ui.history.BestTimesScreen
+import br.app.motorista.ui.history.HistoryScreen
+import br.app.motorista.ui.history.ReportsScreen
+import br.app.motorista.ui.history.TripDetailScreen
+import br.app.motorista.ui.profiles.PlatformsScreen
+import br.app.motorista.ui.profiles.ProfilesScreen
 import br.app.motorista.ui.planning.BillsScreen
 import br.app.motorista.ui.planning.DayCloseScreen
 import br.app.motorista.ui.planning.GoalsScreen
@@ -124,6 +133,15 @@ fun AppNavHost(
                 "reserva" -> ReserveScreen(back, open)
                 "metas" -> GoalsScreen(back, open)
                 "fechamento" -> DayCloseScreen(back, open)
+                "perfis" -> ProfilesScreen(preferences::exportProfileJson, preferences::applyProfileJson, back, open)
+                "plataformas" -> PlatformsScreen(state, preferences::togglePlatform, back, open)
+                "ordem-campos" -> FieldOrderScreen(state, preferences::updateCardStyle, back, open)
+                "cartao-secundario" -> SecondaryCardScreen(state, preferences::updateCardStyle, back, open)
+                "sobreposicao" -> SafeAreaScreen(back, open)
+                "historico" -> HistoryScreen(back, open)
+                "detalhe" -> TripDetailScreen(back, open)
+                "relatorios" -> ReportsScreen(back, open)
+                "horarios" -> BestTimesScreen(back, open)
                 "financas" -> FinanceScreen(back, open)
                 "lancamento" -> EntryFormScreen(back, open)
                 "categorias" -> CategoriesScreen(back, open)

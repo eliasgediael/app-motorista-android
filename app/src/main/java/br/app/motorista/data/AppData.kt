@@ -10,6 +10,9 @@ import br.app.motorista.domain.finance.Goal
 import br.app.motorista.domain.finance.ReserveEntry
 import br.app.motorista.domain.finance.Setting
 import br.app.motorista.domain.finance.Transaction
+import br.app.motorista.domain.history.JourneyRecord
+import br.app.motorista.domain.history.Profile
+import br.app.motorista.domain.history.TripRecord
 import br.app.motorista.domain.vehicle.CostComponent
 import br.app.motorista.domain.vehicle.MaintenanceItem
 import br.app.motorista.domain.vehicle.MaintenanceRecord
@@ -50,6 +53,12 @@ object AppData {
         private set
     lateinit var settings: Repo<Setting>
         private set
+    lateinit var trips: Repo<TripRecord>
+        private set
+    lateinit var journeys: Repo<JourneyRecord>
+        private set
+    lateinit var profiles: Repo<Profile>
+        private set
 
     /** Repositórios por nome, para backup, restauração e apagar tudo. */
     private val registry = linkedMapOf<String, Repo<*>>()
@@ -70,6 +79,9 @@ object AppData {
         goals = register("goals", GoalCodec)
         dayCloses = register("dayCloses", DayCloseCodec)
         settings = register("settings", SettingCodec)
+        trips = register("trips", TripCodec)
+        journeys = register("journeys", JourneyRecordCodec)
+        profiles = register("profiles", ProfileCodec)
         initialized = true
         seedCategoriesIfEmpty()
     }

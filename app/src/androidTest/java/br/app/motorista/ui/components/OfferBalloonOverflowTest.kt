@@ -72,15 +72,16 @@ class OfferBalloonOverflowTest {
         nodes.forEach { node ->
             val results = mutableListOf<TextLayoutResult>()
             node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
+            val nb = node.boundsInRoot
             results.forEach { r ->
                 val text = r.layoutInput.text.text
                 // hasVisualOverflow marca tudo como verdadeiro nesta versão do Compose; medimos a geometria real:
                 // alguma linha mais larga que a caixa do texto, ou altura das linhas maior que a caixa, é corte.
                 val lastLine = r.lineCount - 1
                 val widest = (0 until r.lineCount).maxOf { r.getLineRight(it) }
-                if (widest > r.size.width + 1f) out += "$label: linha mais larga que a caixa em \"$text\" ($widest > ${r.size.width})"
+                if (widest > r.size.width + 1f) out += "$label: linha mais larga que a caixa em \"$text\" ($widest > ${r.size.width}) nodeBounds=${nb.left}..${nb.right}x${nb.top}..${nb.bottom} fonte=${r.layoutInput.style.fontSize} root=$widthPx"
                 if (r.getLineBottom(lastLine) > r.size.height + 1f) out += "$label: altura cortada em \"$text\""
-                if (!text.contains(' ') && r.lineCount != 1) out += "$label: \"$text\" em ${r.lineCount} linhas"
+                if (!text.contains(' ') && r.lineCount != 1) out += "$label: \"$text\" em ${r.lineCount} linhas nodeBounds=${nb.left}..${nb.right} fonte=${r.layoutInput.style.fontSize}"
             }
             val b = node.boundsInRoot
             if (!(b.left >= -0.5f && b.right <= widthPx + 0.5f)) out += "$label: fora da largura (${b.left}..${b.right} de $widthPx)"

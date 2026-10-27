@@ -335,7 +335,19 @@ object CopilotController {
     fun journeyStart() = journeyChange(JourneyClock.start(journey, System.currentTimeMillis()))
     fun journeyPause() = journeyChange(JourneyClock.pause(journey, System.currentTimeMillis()))
     fun journeyResume() = journeyChange(JourneyClock.resume(journey, System.currentTimeMillis()))
-    fun journeyEnd() = journeyChange(JourneyClock.end(journey, System.currentTimeMillis()))
+    fun journeyEnd() {
+        val before = journey
+        val now = System.currentTimeMillis()
+        val ended = JourneyClock.end(before, now) ?: return
+        journeyChange(ended)
+        // Registro permanente da jornada encerrada, para os relatórios.
+        br.app.motorista.data.AppData.journeys.upsert(
+            br.app.motorista.domain.history.JourneyRecord(
+                id = ended.startedAtMs.toString(), startedAtMs = ended.startedAtMs, endedAtMs = now,
+                workedMs = JourneyClock.workedMs(ended, now), pausedMs = JourneyClock.pausedMs(ended, now), pauseCount = ended.pauseCount,
+            ),
+        )
+    }
 
     // ---- copiloto ----
 
