@@ -1,74 +1,83 @@
 # Andamento
 
-Pronto: inventário do vídeo com áudio automático de apoio; direção visual corrigida; 50 imagens de páginas/estados individuais; especificações e comandos por página; apresentação local navegável; arquitetura proposta; pendências Apex.
+Atualizado em 27/10/2026. Histórico completo no git.
 
-Verificação: 50 rotas exportadas sem erros de JavaScript; texto e geometria conferidos, com inspeção visual por amostragem. Referências não são testes do aplicativo Android.
+## Resumo honesto
 
-Pendente: regras Apex, política de combinação, bases/custo e nome; implementação Kotlin/Compose; compilação/testes Android; análise de termos e viabilidade 99Pop; recursos sensíveis condicionados.
+- Telas documentadas: 50. Implementadas: 49. Bloqueadas por decisão/validação externa: 1 (capturas).
+- Código implementado e COMPILADO no GitHub Actions; testes unitários (JVM) executados no CI. Nenhum teste foi executado em aparelho real.
+- NÃO existe leitura real de ofertas do 99Pop nem da Uber. Ofertas vêm da entrada manual. Esta é a maior pendência funcional e depende de decisão do usuário (ver abaixo).
+- Serviços nativos (botão flutuante, gravação com câmera, voz) estão implementados mas NÃO foram vistos funcionando em aparelho.
 
-Teste da apresentação local: 50 rotas com conteúdo, sem erros de JavaScript; troca de balão para Recusar, abertura de menu flutuante e navegação para combinação de critérios verificadas. Balões isolados adicionais exportados.
+## Decisão pendente do usuário
 
-## Versão 0.1.0 (teste) — estado em 27/10/2026
+Leitura de ofertas de outro app exige serviço de acessibilidade. A Política de Programas Proibidos da 99 permite monitorar o aparelho e bloquear/cancelar a conta. A lista de programas proibidos não está acessível. Uber: termos não consultados. A leitura não foi implementada. Sem amostras reais de tela também não há como escrever o interpretador. Todo o restante é independente.
 
-Compilação e testes unitários rodaram no GitHub Actions (este computador não tem Android SDK/Gradle; não foi instalado). Nenhum teste em aparelho foi feito ainda.
+## Lista de conclusão por função
 
-Repositório: https://github.com/eliasgediael/app-motorista-android (público). APK: https://github.com/eliasgediael/app-motorista-android/releases/tag/v0.1.0-build2 (`AppMotorista-v0.1.0-dd497e4.apk`, commit dd497e4, run 40584694787).
+| Tela | Situação | O que é real | Limitação / dependência |
+|---|---|---|---|
+| Painel (`painel`) | Pronta | Cartões do Painel ligados ao estado real do copiloto, gravação, voz e jornada | Análise de corridas aparece como não implementada |
+| Análise de corrida (`analise`) | Pronta (simulação) | Cálculos reais sobre oferta DIGITADA | Sem leitura real de oferta |
+| Critérios de análise (`criterios`) | Pronta | Critérios digitados pelo usuário, persistidos | Valor mínimo/lucro/porcentagem de lucro: especificação pendente |
+| Perfis de trabalho (`perfis`) | Pronta | Salvar, ativar, duplicar e excluir perfis (critérios, política, cartão) |  |
+| Aplicativos de corrida (`plataformas`) | Pronta | Seleção de apps persistida | Leitura de ofertas não implementada (decisão pendente) |
+| Estilo do cartão (`cartao`) | Pronta | Estilo do cartão persistido; mesma renderização no botão flutuante |  |
+| Posição segura (`sobreposicao`) | Pronta (simulação) | Política geométrica testada | Sem fonte real dos controles de 99Pop/Uber: cartão oculto até validar |
+| Controle flutuante (`atalhos`) | Pronta | Liga/desliga o copiloto, itens do menu, opacidade do botão | Testar em aparelho |
+| Jornada (`jornada`) | Pronta | Iniciar, pausar, retomar, encerrar; histórico de jornadas | Fases manuais não existem |
+| Relatórios da jornada (`relatorios`) | Pronta | Período, receita, tempo online, ganho/hora online | Sem fases |
+| Histórico de corridas (`historico`) | Pronta | Filtros, exportar CSV revisável | Hoje só ofertas manuais |
+| Detalhe da corrida (`detalhe`) | Pronta | Métricas, regra da época, confirmação manual -> receita única |  |
+| Melhores horários (`horarios`) | Pronta | Contagem e receita por dia da semana e hora | Método de ranking e amostra mínima pendentes |
+| Finanças (`financas`) | Pronta | Receitas confirmadas, despesas, caixa por mês | Resultado estimado exige modelo de custo |
+| Novo lançamento (`lancamento`) | Pronta | Receita/despesa com confirmação |  |
+| Fechar o dia (`fechamento`) | Pronta | Fechar o dia com totais congelados e odômetro |  |
+| Metas de ganhos (`metas`) | Pronta | Meta mensal e necessário por dia restante | Valores só do usuário |
+| Contas fixas (`contas`) | Pronta | Contas fixas, baixa única por mês | Lembrete por notificação não implementado |
+| Reserva de manutenção (`reserva`) | Pronta | Provisão, transferência e gasto separados |  |
+| Categorias e plataformas (`categorias`) | Pronta | Categorias e plataformas editáveis, arquivar |  |
+| Custo operacional (`custo`) | Pronta | Custo por km a partir de componentes do usuário; resultado estimado no balão | Sem valores sugeridos |
+| Meus veículos (`veiculos`) | Pronta | Cadastro, veículo ativo, odômetro |  |
+| Manutenção (`manutencao`) | Pronta | Agenda do usuário, registros geram despesa única |  |
+| Viagem particular (`particular`) | Pronta | Orçamento com preços do usuário; custo/margem internos |  |
+| Orçamento e recibo (`recibo`) | Pronta | Recibo revisável, compartilhamento voluntário, sem custo/margem |  |
+| Mensagem preparada (`mensagem`) | Pronta | Monta e copia; nunca envia |  |
+| Alertas da viagem (`alertas`) | Pronta (parcial) | Embarque distante com limite do usuário | Paradas e dado de iniciante: não implementados (sem fonte) |
+| Locais sinalizados (`locais`) | Pronta | Termos do usuário e correspondência | Não prova segurança |
+| Voz e notificações (`voz`) | Pronta | TTS real, itens e ordem, cancela pendentes | Notificações de análise: sem fonte real |
+| Navegação (`navegacao`) | Pronta | Abre Maps/Waze com endereço digitado, por ação do usuário | Testar em aparelho |
+| Capturas de tela (`capturas`) | Bloqueada |  | Captura de tela exige MediaProjection e decisão sobre termos das plataformas |
+| Gravação de segurança (`camera`) | Pronta | Gravação visível real (CameraX, serviço em primeiro plano, sem áudio) | NÃO testada em aparelho |
+| Biblioteca de gravações (`gravacoes`) | Pronta | Lista, reprodução, compartilhamento voluntário, exclusão | NÃO testada em aparelho |
+| Permissões e funcionamento (`permissoes`) | Pronta | Estado real das permissões, finalidade, efeito de negar |  |
+| Aparência e preferências (`preferencias`) | Pronta | Tema persistido | Lembretes e fechamento configurável não implementados |
+| Conta e acesso (`conta`) | Pronta (local) | Perfil local | Acesso comercial indefinido |
+| Dispositivos (`dispositivos`) | Pronta (local) | Informações deste aparelho | Sincronização e limite comercial não implementados |
+| Backup e restauração (`backup`) | Pronta | Exportar/importar JSON validado | Sem sincronização; sem gravações |
+| Privacidade e dados (`privacidade`) | Pronta | O que é guardado, apagar dados e gravações |  |
+| Ajuda e primeiros passos (`ajuda`) | Pronta | Tutorial e estado real das funções |  |
+| Ferramentas (`ferramentas`) | Pronta | Catálogo com estado real |  |
+| Balão verde (`balao-boa`) | Pronta (prévia) | Mesmo componente do balão real | Prévia não é avaliação real |
+| Balão amarelo (`balao-atencao`) | Pronta (prévia) | Mesmo componente do balão real | Prévia não é avaliação real |
+| Balão vermelho (`balao-ruim`) | Pronta (prévia) | Mesmo componente do balão real | Prévia não é avaliação real |
+| Menu do botão flutuante (`menu-flutuante`) | Pronta | Mesmos controles e estado do menu flutuante | Testar em aparelho |
+| Cadastrar preferência (`editar-criterio`) | Pronta | Cadastro com validação e revisão |  |
+| Combinar critérios (`combinacao`) | Pronta | Três escolhas do usuário; nada vem escolhido |  |
+| Ordem dos campos (`ordem-campos`) | Pronta | Ordem e ativação dos campos |  |
+| Cartão secundário (`cartao-secundario`) | Pronta | Campos do layout compacto |  |
+| Aparência escura (`aparencia-escura`) | Pronta | Tema escuro persistido | Contraste a validar em aparelho |
 
-### 1. Código implementado (escrito, não compilado)
+## Verificações
 
-- Base: projeto Gradle Kotlin DSL, Compose, tema claro com verde e cores funcionais, navegação para as 50 telas de `telas.json` (as não implementadas mostram "Ainda não implementada").
-- 01 Painel; 03 Critérios de análise; 46 Cadastrar preferência; 47 Combinar critérios; 06 Estilo do cartão; 42/43/44 balões verde/amarelo/vermelho; 08 Controle flutuante.
-- Extra de teste (fora das 50 telas): Simulador de oferta, com entrada manual.
-- Domínio sem Android: validação de critérios (`domain/criteria`), cálculo de R$/km, R$/h, R$/min com base explícita (`domain/calc`), avaliação por faixa e política de combinação (`domain/assessment`), estilo do cartão (`domain/card`).
-- Botão flutuante do próprio app (`floating/FloatingControlService`): botão arrastável, menu (balão verde/amarelo/vermelho de exemplo, ocultar, abrir app, desligar), balão em janela separada, sem toque.
-- CI: `.github/workflows/android.yml` (testes, APK release assinado com chave de teste estável, pré-release com nome por versão e commit). Chave e senha em `Documents/AppMotorista-chave-teste/` (fora do repositório; só segredos do GitHub). Perder essa chave impede atualizar sobre o APK instalado.
+- Testes unitários na JVM (CI): cálculo com bases, avaliação por faixa e política, validação de critérios, plataformas sem mistura e validade de oferta, máquina de estados dos recursos, jornada, geometria do botão/menu, posição segura, finanças, contas, reserva, metas, custo por km, manutenção, histórico, relatórios, recibo, mensagem, alertas, locais, voz, persistência (repositório JSON e preferências), ordem de campos.
+- Testes Compose na JVM (Robolectric): comportamento do balão (selo, motivo, campos). Robolectric NÃO mede texto de verdade.
+- Teste de transbordo/corte de fonte em EMULADOR (job `ui-tests`): vem encontrando problemas reais de layout do balão; correções em andamento. Esse job pode estar falhando; o APK é publicado pelo job `build`.
+- Revisão estática por leitura. Nada disso substitui teste no aparelho.
 
-### 2. Revisão estática realizada
+## Limitações gerais
 
-Leitura do código, conferência de chaves/parênteses e imports por script, conferência de nomes de rotas contra `telas.json`, cálculo manual dos exemplos dos testes. Isto NÃO substitui compilação: erros de tipo, API ou versão de dependência podem existir.
-
-### 3. Compilação e testes (GitHub Actions, run 40584694787)
-
-Primeiro run falhou: dependências exigiam compileSdk 37 (corrigido; targetSdk segue 36). Segundo run: `:app:testDebugUnitTest` e `:app:assembleRelease` concluídos com sucesso; APK assinado com a chave de teste (certificado conferido). Testes unitários executados no CI: `ScreenCatalogTest`, `CriterionValidatorTest`, `CardStyleTest`, `OfferCalculatorTest`, `OfferEvaluatorTest`. Nenhum teste instrumentado/UI e nenhuma execução em aparelho real. Versões resolvidas e compiladas no CI: AGP 9.4.1, Kotlin 2.4.21, Compose BOM 2026.09.00, Navigation 2.10.2, Activity 1.13.0, Lifecycle 2.11.0, Gradle 9.8.2. compileSdk 37, targetSdk 36 e minSdk 26 são provisórios; Android mínimo não confirmado.
-
-### Políticas e valores pendentes (nada foi inventado)
-
-- Nenhum critério vem preenchido; mínimo, "bom" e base são digitados pelo usuário.
-- Sem critério ativo e válido, ou sem as três escolhas da tela 47 (combinação, valor exato no mínimo, dado ausente), nenhuma cor geral é emitida.
-- Fórmulas de R$/km, R$/h e R$/min são CANDIDATAS (`candidata-0.1`), de `referencias/validacoes-apex.md`; arredondamento de exibição (2 casas, meio para cima) é provisório; valores internos não são arredondados.
-- Não implementados: valor mínimo da viagem, lucro mínimo, porcentagem de lucro, resultado estimado, custo operacional (modelo de custo pendente; "Resultado" aparece como indisponível).
-- Ausente é desconhecido; denominador não positivo torna a métrica indisponível.
-
-### Simulação x integração real
-
-- Sem integração com 99Pop, Uber ou inDrive. Marcar aplicativos na tela 03 só registra preferência.
-- Balões do cartão e do botão flutuante usam oferta de EXEMPLO (24,80 / 12,4 km / 22 min) ou entrada manual no simulador.
-- Selo ACEITAR/ATENÇÃO/RECUSAR é informativo; não existe ação em plataforma, toque, gesto nem automação.
-- Interruptores "Análise de corridas" e "Gravação de segurança" no Painel são só estado visual; sem câmera, sem serviço.
-- Botão flutuante: apenas janela do próprio app. Exige permissão de sobreposição concedida pelo usuário; não sabe qual app está em primeiro plano nem onde ficam botões de terceiros. Comportamento em aparelhos reais ainda não testado.
-- Estado em memória: critérios, política e cartão se perdem ao fechar o app (persistência local fica para a próxima versão).
-
-### Próximas versões
-
-0.2: persistência local, perfis, estilo/ordem de campos (48), cartão secundário (49), posição segura (07). Depois: jornada/histórico manuais, finanças, veículos, assistências. Recursos sensíveis (captura, gravação, leitura de tela) em fases próprias e condicionados a termos/viabilidade.
-
-
-## Etapa 2 — arquitetura multi-plataforma (99Pop e Uber), 27/10/2026
-
-### Código implementado
-- `domain/offer`: `Platform` (99Pop, Uber), `OfferOrigin` (manual; leitura de tela reservada e DESATIVADA), `OfferSnapshot` (id, plataforma, origem, instante monotônico, layout validado), `ScreenSnapshot/TextNode`, interface `PlatformOfferParser` (um por plataforma), `UnvalidatedParser`, `OfferStore` (uma vaga por plataforma, nova substitui antiga, antiga/repetida ignorada, validade, invalidação), `OfferPipeline` (oferta atual da plataforma -> cálculo -> avaliação -> NoOffer/Stale/Ready).
-- `offer/BalloonHub`: ponto único entre fontes e balões.
-- Simulador: escolhe plataforma e publica a oferta digitada (origem "manual"). Menu do botão flutuante: "Última oferta analisada" mostra o balão só se a oferta é a atual e está dentro do prazo; senão "INDISPONÍVEL".
-- Cálculo, preferências, balão e botão flutuante são os mesmos para todas as plataformas.
-
-### O que NÃO existe (honesto)
-- NENHUMA leitura real de oferta do 99Pop ou da Uber. Não há AccessibilityService, captura de tela, nem integração. Os parsers de 99Pop e Uber são `UnvalidatedParser`: devolvem "layout não validado" e nunca adivinham campos.
-- Nunca foi visto layout real de nenhum dos dois aplicativos neste projeto; sem amostras reais não há como escrever interpretador correto.
-- Prazo de validade (15 s) é PROVISÓRIO, não validado em aparelho.
-- Nome de pacote de cada aplicativo não foi verificado.
-
-### Bloqueio de decisão: leitura de tela e a Política de Programas Proibidos da 99
-A única forma comum de ler a oferta de outro app é um serviço de acessibilidade lendo a tela. A Política de Programas Proibidos da 99 (https://termos.99app.com/legal/termos/politica-de-programas-proibidos/, consultada em 27/10/2026) diz que a 99 pode monitorar o aparelho, rejeitar o app em aparelhos com "Programas" que alterem ou violem funcionalidades, e bloquear ou cancelar a conta imediatamente. A lista concreta de programas proibidos não aparece na página obtida. Não é possível afirmar daqui se um leitor passivo de tela é permitido. O risco recai sobre a conta do motorista. Por isso a leitura NÃO foi implementada; depende de decisão explícita do usuário (ver mensagem de entrega) e de contato com a 99 / revisão da política. Uber: termos ainda não consultados.
-
-### Revisão estática e testes
-Código novo revisado por leitura. Testes novos em `OfferPipelineTest` (plataformas não se misturam, validade, ordem, invalidação, parsers recusam adivinhar). Compilação e testes: ver run do CI desta etapa abaixo.
+- minSdk 26, compileSdk 37 (exigido pelas dependências), targetSdk 36.
+- Dados locais em JSON no armazenamento interno; sem nuvem, sem telemetria, sem dados de passageiros.
+- Prazo de validade da oferta (15 s) e limite de fonte do balão (1,3x do sistema) são provisórios.
+- Aceitar/recusar corridas nunca é automatizado. O selo ACEITAR/ATENÇÃO/RECUSAR é só informativo.
