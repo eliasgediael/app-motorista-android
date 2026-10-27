@@ -1,5 +1,6 @@
 package br.app.motorista.ui.simulator
 
+import android.os.SystemClock
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +40,11 @@ import br.app.motorista.domain.calc.OfferParsing
 import br.app.motorista.domain.calc.Parsed
 import br.app.motorista.domain.card.PreviewState
 import br.app.motorista.domain.criteria.DistanceTimeBasis
+import br.app.motorista.domain.offer.Freshness
+import br.app.motorista.domain.offer.OfferOrigin
+import br.app.motorista.domain.offer.OfferSnapshot
+import br.app.motorista.domain.offer.Platform
+import br.app.motorista.offer.BalloonHub
 import br.app.motorista.ui.card.PreviewFrame
 import br.app.motorista.ui.common.InfoNote
 import br.app.motorista.ui.common.ScreenScaffold
@@ -47,6 +54,7 @@ import br.app.motorista.ui.components.BalloonValues
 import br.app.motorista.ui.state.PreferencesState
 import br.app.motorista.ui.state.SimulatorForm
 import java.math.BigDecimal
+import java.util.UUID
 
 private data class ParsedOffer(val input: OfferInput, val invalidFields: Set<String>)
 
@@ -141,6 +149,9 @@ fun SimulatorScreen(
 
         SectionTitle("Avaliação")
         AssessmentSection(evaluation, state, parsed, onOpen)
+
+        SectionTitle("Enviar ao balão flutuante")
+        PublishSection(state, parsed, onChange)
     }
 }
 
@@ -182,13 +193,62 @@ private fun AssessmentSection(evaluation: Evaluation, state: PreferencesState, p
     OutlinedButton(onClick = { onOpen("combinacao") }, modifier = Modifier.fillMaxWidth()) { Text("Combinar critérios") }
 }
 
+@Composable
+private fun PublishSection(state: PreferencesState, parsed: ParsedOffer, onChange: ((SimulatorForm) -> SimulatorForm) -> Unit) {
+    val platform = state.simulator.platform
+    var published by remember { mutableStateOf<String?>(null) }
+    Text(
+        "Plataforma da oferta (cada plataforma guarda a sua; nada se mistura):",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Platform.entries.forEach { p ->
+            FilterChip(
+                selected = platform == p,
+                onClick = {
+                    onChange { it.copy(platform = p) }
+                    published = null
+                },
+                label = { Text(p.label) },
+            )
+        }
+    }
+    val canPublish = platform != null && parsed.invalidFields.isEmpty()
+    OutlinedButton(
+        enabled = canPublish,
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            val p = platform ?: return@OutlinedButton
+            val now = SystemClock.elapsedRealtime()
+            val snapshot = OfferSnapshot(
+                id = UUID.randomUUID().toString(),
+                platform = p,
+                origin = OfferOrigin.Manual,
+                capturedAtMs = now,
+                input = parsed.input,
+            )
+            val evaluation = OfferEvaluator.evaluate(parsed.input, state.activeRules(), state.policy)
+            if (BalloonHub.publish(snapshot, evaluation, simulatorValues(state, parsed, p.label))) {
+                published = p.label + " · manual · válida por " + (Freshness.PROVISIONAL_MAX_AGE_MS / 1000) + " s (prazo provisório)"
+            }
+        },
+    ) { Text("Publicar oferta") }
+    Text(
+        published?.let { "Publicada: $it. Use o menu do botão flutuante > Última oferta analisada." }
+            ?: "Escolha a plataforma e publique. A oferta vale por tempo limitado e depois aparece como indisponível.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
 private fun bandLabel(b: Band): String = when (b) {
     Band.Good -> "verde"
     Band.Attention -> "amarelo"
     Band.Bad -> "vermelho"
 }
 
-private fun simulatorValues(state: PreferencesState, parsed: ParsedOffer): BalloonValues {
+private fun simulatorValues(state: PreferencesState, parsed: ParsedOffer, tag: String = "Manual"): BalloonValues {
     val basis = state.simulator.displayBasis
     val input = parsed.input
     fun fmt(r: MetricResult): String = if (r is MetricResult.Value) Display.decimal(r.value) else "—"
@@ -203,7 +263,7 @@ private fun simulatorValues(state: PreferencesState, parsed: ParsedOffer): Ballo
         perMinute = fmt(OfferCalculator.revenuePerMinute(input, basis)),
         fare = input.fareCents?.let { Display.decimal(BigDecimal(it).movePointLeft(2)) } ?: "—",
         result = "Indisponível",
-        tag = "Manual",
+        tag = tag,
     )
 }
 

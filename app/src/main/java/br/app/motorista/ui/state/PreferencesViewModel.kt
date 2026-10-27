@@ -9,6 +9,7 @@ import br.app.motorista.domain.criteria.CriterionDraft
 import br.app.motorista.domain.criteria.CriterionMetric
 import br.app.motorista.domain.criteria.CriterionValidator
 import br.app.motorista.domain.criteria.DistanceTimeBasis
+import br.app.motorista.domain.offer.Platform
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +29,8 @@ data class SimulatorForm(
     val rating: String = "",
     /** Base usada só para EXIBIR métricas do cartão; cada critério usa a base própria. */
     val displayBasis: DistanceTimeBasis? = null,
+    /** Plataforma da oferta digitada. Sem escolha, não há como publicar (origem desconhecida). */
+    val platform: Platform? = null,
 )
 
 data class PreferencesState(

@@ -51,3 +51,24 @@ Primeiro run falhou: dependências exigiam compileSdk 37 (corrigido; targetSdk s
 ### Próximas versões
 
 0.2: persistência local, perfis, estilo/ordem de campos (48), cartão secundário (49), posição segura (07). Depois: jornada/histórico manuais, finanças, veículos, assistências. Recursos sensíveis (captura, gravação, leitura de tela) em fases próprias e condicionados a termos/viabilidade.
+
+
+## Etapa 2 — arquitetura multi-plataforma (99Pop e Uber), 27/10/2026
+
+### Código implementado
+- `domain/offer`: `Platform` (99Pop, Uber), `OfferOrigin` (manual; leitura de tela reservada e DESATIVADA), `OfferSnapshot` (id, plataforma, origem, instante monotônico, layout validado), `ScreenSnapshot/TextNode`, interface `PlatformOfferParser` (um por plataforma), `UnvalidatedParser`, `OfferStore` (uma vaga por plataforma, nova substitui antiga, antiga/repetida ignorada, validade, invalidação), `OfferPipeline` (oferta atual da plataforma -> cálculo -> avaliação -> NoOffer/Stale/Ready).
+- `offer/BalloonHub`: ponto único entre fontes e balões.
+- Simulador: escolhe plataforma e publica a oferta digitada (origem "manual"). Menu do botão flutuante: "Última oferta analisada" mostra o balão só se a oferta é a atual e está dentro do prazo; senão "INDISPONÍVEL".
+- Cálculo, preferências, balão e botão flutuante são os mesmos para todas as plataformas.
+
+### O que NÃO existe (honesto)
+- NENHUMA leitura real de oferta do 99Pop ou da Uber. Não há AccessibilityService, captura de tela, nem integração. Os parsers de 99Pop e Uber são `UnvalidatedParser`: devolvem "layout não validado" e nunca adivinham campos.
+- Nunca foi visto layout real de nenhum dos dois aplicativos neste projeto; sem amostras reais não há como escrever interpretador correto.
+- Prazo de validade (15 s) é PROVISÓRIO, não validado em aparelho.
+- Nome de pacote de cada aplicativo não foi verificado.
+
+### Bloqueio de decisão: leitura de tela e a Política de Programas Proibidos da 99
+A única forma comum de ler a oferta de outro app é um serviço de acessibilidade lendo a tela. A Política de Programas Proibidos da 99 (https://termos.99app.com/legal/termos/politica-de-programas-proibidos/, consultada em 27/10/2026) diz que a 99 pode monitorar o aparelho, rejeitar o app em aparelhos com "Programas" que alterem ou violem funcionalidades, e bloquear ou cancelar a conta imediatamente. A lista concreta de programas proibidos não aparece na página obtida. Não é possível afirmar daqui se um leitor passivo de tela é permitido. O risco recai sobre a conta do motorista. Por isso a leitura NÃO foi implementada; depende de decisão explícita do usuário (ver mensagem de entrega) e de contato com a 99 / revisão da política. Uber: termos ainda não consultados.
+
+### Revisão estática e testes
+Código novo revisado por leitura. Testes novos em `OfferPipelineTest` (plataformas não se misturam, validade, ordem, invalidação, parsers recusam adivinhar). Compilação e testes: ver run do CI desta etapa abaixo.

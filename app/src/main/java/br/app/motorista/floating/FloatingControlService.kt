@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.Gravity
 import android.view.MotionEvent
@@ -24,8 +25,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.ui.graphics.toArgb
 import br.app.motorista.R
+import br.app.motorista.domain.assessment.Band
 import br.app.motorista.domain.card.PreviewState
 import br.app.motorista.domain.card.SampleOffer
+import br.app.motorista.domain.offer.Slot
+import br.app.motorista.offer.BalloonHub
 import br.app.motorista.ui.theme.FunctionalColors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -205,6 +209,7 @@ class FloatingControlService : Service() {
             elevation = dp(8).toFloat()
         }
         column.addView(menuTitle("Controles · simulação"))
+        column.addView(menuItem("Última oferta analisada", 0xFF15211B.toInt()) { showLatestOffer() })
         column.addView(menuItem("Balão verde (exemplo)", FunctionalColors.Good.toArgb()) { showBalloon(PreviewState.Good) })
         column.addView(menuItem("Balão amarelo (exemplo)", FunctionalColors.Attention.toArgb()) { showBalloon(PreviewState.Attention) })
         column.addView(menuItem("Balão vermelho (exemplo)", FunctionalColors.Bad.toArgb()) { showBalloon(PreviewState.Bad) })
@@ -263,16 +268,84 @@ class FloatingControlService : Service() {
     // ---- balão de exemplo (janela separada do botão) ----
 
     private fun showBalloon(state: PreviewState) {
-        removeBalloon()
-        val accent = when (state) {
-            PreviewState.Good -> FunctionalColors.Good.toArgb()
-            PreviewState.Attention -> FunctionalColors.Attention.toArgb()
-            PreviewState.Bad -> FunctionalColors.Bad.toArgb()
+        val accent = state.accent()
+        showCard(
+            state.seal,
+            accent,
+            listOf(
+                Line("SIMULAÇÃO · dados de exemplo · sem 99Pop", 11f, GREY),
+                Line(SampleOffer.MINUTES + " · " + SampleOffer.DISTANCE + " · ★ " + SampleOffer.RATING, 13f, GREY),
+                Line("R$/km " + SampleOffer.PER_KM + "   R$/h " + SampleOffer.PER_HOUR + "   R$/min " + SampleOffer.PER_MINUTE, 17f, INK),
+                Line("Selo informativo. Decisão manual; nada é aceito ou recusado.", 12f, accent),
+            ),
+        )
+    }
+
+    /**
+     * Balão da última oferta publicada. Só mostra cores/valores se a oferta ainda é a atual E está
+     * dentro do prazo; caso contrário mostra indisponibilidade, nunca o resultado antigo.
+     */
+    private fun showLatestOffer() {
+        val published = BalloonHub.latestAny()
+        if (published == null) {
+            showCard("INDISPONÍVEL", GREY, listOf(Line("Nenhuma oferta analisada ainda.", 14f, INK)))
+            return
         }
+        val now = SystemClock.elapsedRealtime()
+        val slot = BalloonHub.store.slot(published.platform, now)
+        val origin = published.platform.label + " · " + published.origin.label
+        if (slot !is Slot.Fresh || slot.snapshot.id != published.offerId) {
+            showCard(
+                "INDISPONÍVEL",
+                GREY,
+                listOf(
+                    Line(origin, 11f, GREY),
+                    Line("A última oferta é antiga e não vale mais. Nenhum resultado é mostrado.", 14f, INK),
+                ),
+            )
+            return
+        }
+        val v = published.values
+        val band = published.band
+        val accent = band?.let { it.accent() } ?: GREY
+        val seal = when (band) {
+            Band.Good -> PreviewState.Good.seal
+            Band.Attention -> PreviewState.Attention.seal
+            Band.Bad -> PreviewState.Bad.seal
+            null -> "SEM COR GERAL"
+        }
+        showCard(
+            seal,
+            accent,
+            listOf(
+                Line(origin + " · há " + (slot.ageMs / 1000) + " s", 11f, GREY),
+                Line(v.time + " · " + v.distance + " · ★ " + v.rating, 13f, GREY),
+                Line("R$/km " + v.perKm + "   R$/h " + v.perHour + "   R$/min " + v.perMinute, 17f, INK),
+                Line(published.note, 12f, accent),
+            ),
+        )
+    }
+
+    private class Line(val text: String, val size: Float, val color: Int)
+
+    private fun PreviewState.accent(): Int = when (this) {
+        PreviewState.Good -> FunctionalColors.Good.toArgb()
+        PreviewState.Attention -> FunctionalColors.Attention.toArgb()
+        PreviewState.Bad -> FunctionalColors.Bad.toArgb()
+    }
+
+    private fun Band.accent(): Int = when (this) {
+        Band.Good -> PreviewState.Good.accent()
+        Band.Attention -> PreviewState.Attention.accent()
+        Band.Bad -> PreviewState.Bad.accent()
+    }
+
+    private fun showCard(sealText: String, accent: Int, lines: List<Line>) {
+        removeBalloon()
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(
             TextView(this).apply {
-                text = state.seal
+                text = sealText
                 setTextColor(0xFFFFFFFF.toInt())
                 textSize = 12f
                 setPadding(dp(12), dp(4), dp(12), dp(4))
@@ -294,10 +367,7 @@ class FloatingControlService : Service() {
                 setStroke(dp(2), accent)
             }
         }
-        card.addView(label("SIMULAÇÃO · dados de exemplo · sem 99Pop", 11f, 0xFF5F6E66.toInt()))
-        card.addView(label("${SampleOffer.MINUTES} · ${SampleOffer.DISTANCE} · ★ ${SampleOffer.RATING}", 13f, 0xFF5F6E66.toInt()))
-        card.addView(label("R$/km ${SampleOffer.PER_KM}   R$/h ${SampleOffer.PER_HOUR}   R$/min ${SampleOffer.PER_MINUTE}", 17f, 0xFF15211B.toInt()))
-        card.addView(label("Selo informativo. Decisão manual; nada é aceito ou recusado.", 12f, accent))
+        lines.forEach { card.addView(label(it.text, it.size, it.color)) }
         root.addView(card)
 
         val params = overlayParams(
@@ -330,6 +400,8 @@ class FloatingControlService : Service() {
         private const val CHANNEL_ID = "floating_control"
         private const val NOTIFICATION_ID = 1
         private const val BALLOON_SECONDS = 8
+        private const val GREY = 0xFF5F6E66.toInt()
+        private const val INK = 0xFF15211B.toInt()
 
         private val _running = MutableStateFlow(false)
         val running: StateFlow<Boolean> = _running.asStateFlow()
