@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -75,7 +76,7 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
     AppData.settings.items.collectAsState().value
     var platform by rememberSaveable { mutableStateOf(Platform.P99) }
     var basis by rememberSaveable { mutableStateOf<DistanceTimeBasis?>(state.simulator.displayBasis ?: DistanceTimeBasis.PickupAndTrip) }
-    var message by rememberSaveable { mutableStateOf<String?>(null) }
+    var message by remember { mutableStateOf<Pair<String, String>?>(null) }
     var clearing by rememberSaveable { mutableStateOf(false) }
     val testTrips = trips.filter { it.origin == TEST_ORIGIN }.sortedByDescending { it.atMs }
 
@@ -92,6 +93,7 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
         SectionTitle("Ofertas de teste")
         TEST_OFFERS.forEach { t ->
             SurfaceCard {
+              Column {
                 Row(Modifier.padding(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(t.name, fontWeight = FontWeight.SemiBold)
@@ -101,11 +103,15 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Button(onClick = { message = fire(state, t, platform, basis) }) { Text("Disparar") }
+                    Button(onClick = { message = t.name to fire(state, t, platform, basis) }) { Text("Disparar") }
                 }
+                // Resultado logo abaixo da oferta tocada, onde o usuário está olhando.
+                message?.takeIf { it.first == t.name }?.let {
+                    Text(it.second, Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                }
+              }
             }
         }
-        message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
         SectionTitle("Corridas de teste")
         if (testTrips.isEmpty()) Text("Nenhuma corrida de teste ainda.", color = MaterialTheme.colorScheme.onSurfaceVariant)
