@@ -25,7 +25,7 @@ data class StoredPrefs(
     val drafts: Map<CriterionMetric, CriterionDraft> = emptyMap(),
     val selectedPlatforms: Set<String> = emptySet(),
     val cardStyle: CardStyle = CardStyle(),
-    val policy: EvaluationPolicy = EvaluationPolicy(),
+    val policy: EvaluationPolicy = EvaluationPolicy.standard,
     val buttonOpacity: Float = 1f,
     val themeMode: ThemeMode = ThemeMode.System,
 )
@@ -36,7 +36,7 @@ object PrefsCodec {
         p.drafts.forEach { (m, d) ->
             drafts.put(
                 m.name,
-                JSONObject().put("enabled", d.enabled).put("minimum", d.minimum).put("good", d.good)
+                JSONObject().put("off", !d.enabled).put("minimum", d.minimum).put("good", d.good)
                     .put("basis", d.basis?.name ?: JSONObject.NULL),
             )
         }
@@ -76,10 +76,11 @@ object PrefsCodec {
             CriterionMetric.entries.forEach { m ->
                 d.optJSONObject(m.name)?.let { x ->
                     drafts[m] = CriterionDraft(
-                        enabled = x.optBoolean("enabled", false),
+                        // Ligado, a menos que o usuário tenha desligado de propósito (chave "off").
+                        enabled = !x.optBoolean("off", false),
                         minimum = x.optString("minimum", ""),
                         good = x.optString("good", ""),
-                        basis = enumOrNull<DistanceTimeBasis>(x, "basis"),
+                        basis = enumOrNull<DistanceTimeBasis>(x, "basis") ?: if (m.needsBasis) CriterionDraft.DEFAULT_BASIS else null,
                     )
                 }
             }
@@ -101,10 +102,11 @@ object PrefsCodec {
             )
         }
         val pol = o.optJSONObject("policy")
-        val policy = if (pol == null) EvaluationPolicy() else EvaluationPolicy(
-            boundary = enumOrNull<BoundaryPolicy>(pol, "boundary"),
-            combination = enumOrNull<CombinationPolicy>(pol, "combination"),
-            missing = enumOrNull<MissingDataPolicy>(pol, "missing"),
+        val std = EvaluationPolicy.standard
+        val policy = if (pol == null) std else EvaluationPolicy(
+            boundary = enumOrNull<BoundaryPolicy>(pol, "boundary") ?: std.boundary,
+            combination = enumOrNull<CombinationPolicy>(pol, "combination") ?: std.combination,
+            missing = enumOrNull<MissingDataPolicy>(pol, "missing") ?: std.missing,
         )
         val plats = o.optJSONArray("platforms")
         return StoredPrefs(

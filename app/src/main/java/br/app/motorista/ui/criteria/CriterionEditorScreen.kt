@@ -73,7 +73,7 @@ fun CriterionEditorScreen(
             SettingRow(
                 icon = Icons.Outlined.BarChart,
                 title = "Usar este critério",
-                subtitle = if (validation.isValid) "Desativado até você decidir" else "Preencha os campos para poder ativar",
+                subtitle = if (!validation.isValid) "Preencha mínimo e máximo: o critério liga sozinho" else if (draft.enabled) "Ligado: vale para as ofertas" else "Desligado por você",
                 trailing = {
                     Switch(
                         checked = draft.enabled && validation.isValid,
@@ -90,19 +90,19 @@ fun CriterionEditorScreen(
                     label = "Valor mínimo",
                     value = draft.minimum,
                     error = if (reviewed) fieldError(validation, CriterionIssue.MinimumMissing, CriterionIssue.MinimumInvalid) else null,
-                    onChange = { text -> onUpdate(metric) { it.copy(minimum = text, enabled = false) } },
+                    onChange = { text -> onUpdate(metric) { it.copy(minimum = text) } },
                 )
                 NumberField(
-                    label = "Considerado bom a partir de",
+                    label = "Máximo (bom a partir de)",
                     value = draft.good,
                     error = if (reviewed) fieldError(validation, CriterionIssue.GoodMissing, CriterionIssue.GoodInvalid, CriterionIssue.GoodBelowMinimum) else null,
-                    onChange = { text -> onUpdate(metric) { it.copy(good = text, enabled = false) } },
+                    onChange = { text -> onUpdate(metric) { it.copy(good = text) } },
                 )
                 if (metric.needsBasis) {
                     BasisPicker(
                         selected = draft.basis,
                         showError = reviewed && CriterionIssue.BasisMissing in validation.issues,
-                        onSelect = { basis -> onUpdate(metric) { it.copy(basis = basis, enabled = false) } },
+                        onSelect = { basis -> onUpdate(metric) { it.copy(basis = basis) } },
                     )
                 }
             }
@@ -116,7 +116,7 @@ fun CriterionEditorScreen(
             }
         }
 
-        InfoNote("Confirmar o tratamento de valores exatamente no limite. Nenhum número do vídeo foi importado como sua preferência.")
+        InfoNote("Abaixo do mínimo: vermelho. Entre mínimo e máximo: amarelo. Do máximo para cima: verde. Nenhum número vem preenchido: são todos seus.")
 
         if (reviewed && validation.isValid) {
             InfoNote(

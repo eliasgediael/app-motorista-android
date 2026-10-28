@@ -25,7 +25,15 @@ data class CriterionDraft(
     val minimum: String = "",
     val good: String = "",
     val basis: DistanceTimeBasis? = null,
-)
+) {
+    companion object {
+        /** Base de partida (embarque + viagem) para quem não quer escolher; pode ser trocada no cadastro. */
+        val DEFAULT_BASIS = DistanceTimeBasis.PickupAndTrip
+
+        /** Critério novo: já ligado e com a base de partida. Só vale quando mínimo e bom forem preenchidos. */
+        fun fresh(metric: CriterionMetric) = CriterionDraft(enabled = true, basis = if (metric.needsBasis) DEFAULT_BASIS else null)
+    }
+}
 
 enum class CriterionIssue {
     MinimumMissing,

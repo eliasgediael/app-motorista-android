@@ -105,7 +105,7 @@ fun CriteriaScreen(
             Column {
                 NavRow(Icons.Outlined.Schedule, "Tempo e distância", "Limites de embarque e viagem") { onOpen("alertas") }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                NavRow(Icons.AutoMirrored.Outlined.List, "Como combinar critérios", "Escolher regra de avaliação · pendente") { onOpen("combinacao") }
+                NavRow(Icons.AutoMirrored.Outlined.List, "Como combinar critérios", "Padrão: a pior faixa define a cor · opcional") { onOpen("combinacao") }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 NavRow(Icons.Outlined.Person, "Perfis de trabalho", "Guardar preferências por contexto") { onOpen("perfis") }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -113,7 +113,7 @@ fun CriteriaScreen(
             }
         }
 
-        InfoNote("Os seus valores ainda não foram definidos. Sem regras confirmadas, nenhuma avaliação Aceitar/Atenção/Recusar é emitida.")
+        InfoNote("Preencha mínimo e máximo de cada critério que quiser usar. A cor do balão passa a valer na hora. Sem nenhum critério preenchido, o balão mostra só os números.")
     }
 }
 

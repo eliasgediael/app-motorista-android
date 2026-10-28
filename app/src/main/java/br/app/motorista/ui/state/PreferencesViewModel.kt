@@ -49,7 +49,7 @@ data class PreferencesState(
     val previewState: PreviewState = PreviewState.Good,
     /** Métrica cujo rascunho foi "revisado" na tela 46. Revisão não confirma regra. */
     val reviewedMetric: CriterionMetric? = null,
-    val policy: EvaluationPolicy = EvaluationPolicy(),
+    val policy: EvaluationPolicy = EvaluationPolicy.standard,
     val simulator: SimulatorForm = SimulatorForm(),
     /** Opacidade do BOTÃO flutuante; independente da opacidade do balão (cardStyle.opacity). */
     val buttonOpacity: Float = 1f,
@@ -62,7 +62,7 @@ data class PreferencesState(
         if (draft.enabled && v.isValid) CriterionRule(metric, v.minimum!!, v.good!!, draft.basis) else null
     }
 
-    fun draft(metric: CriterionMetric): CriterionDraft = drafts[metric] ?: CriterionDraft()
+    fun draft(metric: CriterionMetric): CriterionDraft = drafts[metric] ?: CriterionDraft.fresh(metric)
 }
 
 /**

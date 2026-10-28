@@ -186,5 +186,11 @@ private fun fire(state: PreferencesState, t: TestOffer, platform: Platform, basi
             ruleVersionId = RuleVersion.id(summary), ruleSummary = summary,
         ),
     )
-    return "Oferta de teste disparada" + if (extras.isNotEmpty()) " · atenção: " + extras.joinToString("; ") else ""
+    val verdict = when ((evaluation.assessment as? Assessment.Colored)?.band) {
+        br.app.motorista.domain.assessment.Band.Good -> "VERDE (boa)"
+        br.app.motorista.domain.assessment.Band.Attention -> "AMARELO (atenção)"
+        br.app.motorista.domain.assessment.Band.Bad -> "VERMELHO (fraca)"
+        null -> "SEM COR: " + (BalloonHub.latest(platform)?.note ?: "")
+    }
+    return "Resultado: $verdict" + if (extras.isNotEmpty()) " · atenção: " + extras.joinToString("; ") else ""
 }

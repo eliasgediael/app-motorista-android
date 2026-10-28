@@ -32,7 +32,7 @@ fun CombinationScreen(
     onOpen: (String) -> Unit,
 ) {
     ScreenScaffold("Combinar critérios", onBack, onOpen) {
-        InfoNote("Sem as três escolhas abaixo, o aplicativo não emite cor geral (verde, amarelo ou vermelho) para uma oferta.")
+        InfoNote("Já vem com o padrão: no mínimo exato = amarelo; a pior faixa define a cor; critério sem dado é ignorado. Só mude se quiser outra regra.")
 
         SectionTitle("Como combinar os critérios ativos")
         OptionCard(

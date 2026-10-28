@@ -31,6 +31,11 @@ data class EvaluationPolicy(
     val combination: CombinationPolicy? = null,
     val missing: MissingDataPolicy? = null,
 ) {
+    companion object {
+        /** Padrão de partida escolhido pelo usuário ("o resto o aplicativo já tem que ter"); pode ser trocado em Combinar critérios. */
+        val standard = EvaluationPolicy(BoundaryPolicy.MinimumIsAttention, CombinationPolicy.WorstWins, MissingDataPolicy.IgnoreCriterion)
+    }
+
     val pending: List<String>
         get() = buildList {
             if (boundary == null) add("limite exato do mínimo")
