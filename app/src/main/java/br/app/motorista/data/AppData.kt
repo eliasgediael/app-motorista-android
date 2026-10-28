@@ -69,6 +69,7 @@ object AppData {
     @Synchronized
     fun init(context: Context) {
         if (initialized) return
+        CrashLog.install(context)
         dir = File(context.applicationContext.filesDir, "data").also { it.mkdirs() }
         categories = register("categories", CategoryCodec)
         transactions = register("transactions", TransactionCodec)

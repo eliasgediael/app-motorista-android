@@ -147,18 +147,21 @@ class OfferReaderService : AccessibilityService() {
          */
         fun captureSample(context: android.content.Context): Result<File> {
             val svc = instance ?: return Result.failure(IllegalStateException("Serviço de acessibilidade desligado"))
-            val root = svc.rootInActiveWindow ?: return Result.failure(IllegalStateException("Nenhuma tela legível agora"))
-            val pkg = root.packageName?.toString() ?: "desconhecido"
-            if (pkg == context.packageName) return Result.failure(IllegalStateException("Abra o aplicativo de corrida antes de capturar"))
-            val nodes = svc.collect(root)
+            // Todas as janelas visíveis (a oferta pode estar numa janela que não é a "ativa") exceto as deste app.
+            val roots = (svc.windows.mapNotNull { it.root } + listOfNotNull(svc.rootInActiveWindow))
+                .filter { it.packageName?.toString() != context.packageName }
+                .distinctBy { System.identityHashCode(it) }
+            if (roots.isEmpty()) return Result.failure(IllegalStateException("Nenhuma tela legível agora. Abra o aplicativo de corrida antes de capturar"))
             val dir = File(context.getExternalFilesDir(null) ?: context.filesDir, "amostras").also { it.mkdirs() }
             val file = File(dir, "amostra-" + SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date()) + ".txt")
             file.writeText(
                 buildString {
-                    appendLine("pacote=" + pkg)
-                    appendLine("nos=" + nodes.size)
-                    appendLine("---")
-                    nodes.forEach { appendLine((it.viewId ?: "-") + " | " + it.text.replace("\n", " ")) }
+                    appendLine("janelas=" + roots.size)
+                    roots.forEach { root ->
+                        val nodes = svc.collect(root)
+                        appendLine("=== pacote=" + (root.packageName ?: "desconhecido") + " nos_com_texto=" + nodes.size + " filhos_raiz=" + root.childCount)
+                        nodes.forEach { appendLine((it.viewId ?: "-") + " | " + it.text.replace("\n", " ")) }
+                    }
                 },
             )
             return Result.success(file)

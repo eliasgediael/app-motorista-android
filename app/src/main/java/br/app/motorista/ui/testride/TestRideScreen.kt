@@ -78,6 +78,8 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
     var basis by rememberSaveable { mutableStateOf<DistanceTimeBasis?>(state.simulator.displayBasis ?: DistanceTimeBasis.PickupAndTrip) }
     var message by remember { mutableStateOf<Pair<String, String>?>(null) }
     var clearing by rememberSaveable { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var lastError by remember { mutableStateOf(br.app.motorista.data.CrashLog.read(context)) }
     val testTrips = trips.filter { it.origin == TEST_ORIGIN }.sortedByDescending { it.atMs }
 
     ScreenScaffold("Corrida de teste", onBack, onOpen) {
@@ -85,6 +87,15 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
             "Dispara uma oferta de TESTE pelo mesmo caminho da oferta real: usa SEUS critérios e a SUA combinação, aparece no balão (ligue o copiloto para ver no botão flutuante) e na voz, " +
                 "e entra no histórico marcada como teste. Os números abaixo são exemplos de teste, não são sugestão de valores.",
         )
+        lastError?.let { err ->
+            SurfaceCard {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Último erro do aplicativo (diagnóstico)", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
+                    androidx.compose.foundation.text.selection.SelectionContainer { Text(err.take(1500), style = MaterialTheme.typography.bodySmall) }
+                    TextButton(onClick = { br.app.motorista.data.CrashLog.clear(context); lastError = null }) { Text("Apagar este aviso") }
+                }
+            }
+        }
         Text("Plataforma da oferta", style = MaterialTheme.typography.bodySmall)
         ChoiceChips(Platform.entries, platform, { it.label }) { platform = it }
         Text("Base para exibir as métricas", style = MaterialTheme.typography.bodySmall)
@@ -103,7 +114,14 @@ fun TestRideScreen(state: PreferencesState, onBack: () -> Unit, onOpen: (String)
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Button(onClick = { message = t.name to fire(state, t, platform, basis) }) { Text("Disparar") }
+                    Button(onClick = {
+                        message = t.name to try {
+                            fire(state, t, platform, basis)
+                        } catch (e: Exception) {
+                            br.app.motorista.data.CrashLog.record(context, "Erro ao disparar oferta de teste", e)
+                            "ERRO: " + (e.message ?: e.javaClass.simpleName)
+                        }
+                    }) { Text("Disparar") }
                 }
                 // Resultado logo abaixo da oferta tocada, onde o usuário está olhando.
                 message?.takeIf { it.first == t.name }?.let {

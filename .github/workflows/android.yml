@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_VERSION_NAME: "0.3.2"
+  APP_VERSION_NAME: "0.3.3"
 
 jobs:
   build:
